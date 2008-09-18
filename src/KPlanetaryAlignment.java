@@ -131,7 +131,6 @@ public class KPlanetaryAlignment {
     }
     
 
-    @Test
     public void testCalculation() {
         assertEquals(5, number(new int[] { 8, 40 }, 2, 0, 20));
         assertEquals(8, number(new int[] { 8, 24, 40 }, 2, 0, 20));

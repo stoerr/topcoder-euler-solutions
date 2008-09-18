@@ -11,7 +11,7 @@ package net.stoerr.topcoder.amdraytracer;
  * @author hps
  * @since 18.09.2008
  */
-public final class Parallelogram {
+public final class Parallelogram implements Hitable {
 
     public final Vec3 origin;
     public final Vec3 xdir;

@@ -1,1 +1,3 @@
 TCO08 Qual1 Div 1 : 250
+
+http://java.sun.com/javase/6/docs/api/java/awt/image/MemoryImageSource.html
