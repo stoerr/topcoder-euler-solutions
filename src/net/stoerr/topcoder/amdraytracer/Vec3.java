@@ -80,6 +80,11 @@ public final class Vec3 {
     public double angle(final Vec3 o) {
         return Math.acos(cosine(o));
     }
+    
+    /** Projection of this vector into the direction of base. */
+    public Vec3 project(Vec3 base) {
+        return base.scale(base.scalar(this)/base.scalar(base));
+    }
 
     @Override
     public String toString() {
