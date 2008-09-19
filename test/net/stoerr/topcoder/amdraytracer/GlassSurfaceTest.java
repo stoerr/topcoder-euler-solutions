@@ -40,6 +40,8 @@ public class GlassSurfaceTest extends TestCase {
                         / sin(acos(v.cosine(nrm)));
                 assertTrue("" + n, 1e-6 > (n - 2) || 1e-6 > (n - 0.5));
             }
+            double tc = s.transCoeff(dir, nrm, v);
+            assertTrue(""+tc, 0 <= tc && tc <= 1);
         }
     }
 

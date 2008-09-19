@@ -1,5 +1,7 @@
 package net.stoerr.topcoder.amdraytracer;
 
+import static java.lang.Math.*;
+
 /**
  * A glass surface. <br>
  * 
@@ -32,8 +34,25 @@ public final class GlassSurface {
         double c = n * n + cos * cos - 1;
         if (0 > c)
             return null;
-        double f = Math.sqrt(c) + cos;
+        double f = sqrt(c) + cos;
         return direction.add(normal.scale(-f)).normalized();
+    }
+    
+    /** Transmission coefficient according to Fresnel equations http://en.wikipedia.org/wiki/Fresnel_equations 
+     * @param dir direction of incoming ray
+     * @param normal normal of surface
+     * @param refract direction of refracted ray or null if total reflection
+     * @return transmission coefficient
+     */
+    public double transCoeff(Vec3 dir, Vec3 normal, Vec3 refract) {
+        if (null == refract) {
+            return 0;
+        }
+        double c1 = abs(dir.cosine(normal));
+        double c2 = abs(refract.cosine(normal));
+        double rs = (relrefraction*c1-c2)/(relrefraction*c1+c2); rs = rs*rs;
+        double rp = (relrefraction*c2-c1)/(relrefraction*c2+c1); rp = rp*rp;
+        return (rs+rp)/2;
     }
 
 }
