@@ -11,7 +11,7 @@ package net.stoerr.topcoder.amdraytracer;
  * @author hps
  * @since 18.09.2008
  */
-public final class Parallelogram implements Hitable {
+public class Parallelogram implements Hitable {
 
     public final Vec3 origin;
     public final Vec3 xdir;
@@ -22,11 +22,11 @@ public final class Parallelogram implements Hitable {
     /** perpendicular to xdir but in the parallelogram plane */
     private final Vec3 yperp;
 
-    public Parallelogram(Vec3 origin, Vec3 left, Vec3 right) {
+    public Parallelogram(Vec3 origin, Vec3 xdir, Vec3 ydir) {
         this.origin = origin;
-        this.xdir = left;
-        this.ydir = right;
-        this.normal = left.cross(right).normalized();
+        this.xdir = xdir;
+        this.ydir = ydir;
+        this.normal = xdir.cross(ydir).normalized();
         yperp = ydir.cross(xdir).cross(xdir).normalized();
     }
 

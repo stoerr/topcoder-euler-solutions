@@ -11,20 +11,31 @@ public final class Vec3 {
     public final double x;
     public final double y;
     public final double z;
+    private final boolean normalized;
 
     public Vec3(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.normalized = false;
     }
+
+    private Vec3(double x, double y, double z, boolean normalized) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.normalized = normalized;
+    }
+    
 
     public double length() {
         return Math.sqrt(this.scalar(this));
     }
 
     public Vec3 normalized() {
+        if (normalized) return this;
         double len = length();
-        return new Vec3(x / len, y / len, z / len);
+        return new Vec3(x / len, y / len, z / len, true);
     }
 
     public Vec3 add(final Vec3 other) {
