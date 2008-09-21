@@ -1,5 +1,7 @@
 package net.stoerr.topcoder.amdraytracer;
 
+import static java.lang.Math.*;
+
 /**
  * A threedimensional vector.
  * 
@@ -9,8 +11,11 @@ package net.stoerr.topcoder.amdraytracer;
 public final class Vec3 {
 
     public final double x;
+
     public final double y;
+
     public final double z;
+
     private final boolean normalized;
 
     public Vec3(double x, double y, double z) {
@@ -26,14 +31,14 @@ public final class Vec3 {
         this.z = z;
         this.normalized = normalized;
     }
-    
 
     public double length() {
-        return Math.sqrt(this.scalar(this));
+        return sqrt(this.scalar(this));
     }
 
     public Vec3 normalized() {
-        if (normalized) return this;
+        if (normalized)
+            return this;
         double len = length();
         return new Vec3(x / len, y / len, z / len, true);
     }
@@ -68,7 +73,11 @@ public final class Vec3 {
      * FIXME this is certainly wrong. 8-}
      */
     public static Vec3 randomUnity() {
-        return new Vec3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalized();
+        // return new Vec3(random() - 0.5, random() - 0.5, random() -
+        // 0.5).normalized();
+        double phi = asin(2 * Math.random() - 1);
+        double theta = 2 * PI * Math.random();
+        return new Vec3(cos(phi) * cos(theta), cos(phi) * sin(theta), sin(phi));
     }
 
     /** cosine of the angle between the vectors */
@@ -78,12 +87,12 @@ public final class Vec3 {
     }
 
     public double angle(final Vec3 o) {
-        return Math.acos(cosine(o));
+        return acos(cosine(o));
     }
-    
+
     /** Projection of this vector into the direction of base. */
     public Vec3 project(Vec3 base) {
-        return base.scale(base.scalar(this)/base.scalar(base));
+        return base.scale(base.scalar(this) / base.scalar(base));
     }
 
     @Override
