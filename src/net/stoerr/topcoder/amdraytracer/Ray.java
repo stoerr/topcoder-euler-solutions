@@ -31,4 +31,12 @@ public class Ray {
         return "Ray{" + origin + " => " + direction + "}";
     }
 
+    /** Distance of the point hit to the origin. Assumed to be on ray. If null, we return Double.MAX_VALUE. */
+    public double distance(Vec3 hit) {
+        if (null != hit) {
+            return hit.subtract(origin).length();
+        }
+        return Double.MAX_VALUE;
+    }
+
 }

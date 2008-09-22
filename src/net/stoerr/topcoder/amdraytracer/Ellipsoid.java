@@ -48,4 +48,11 @@ public final class Ellipsoid implements Hitable {
         return ray.forward(t);
     }
 
+    /** surface normal at hitpoint */
+    public Vec3 normal(Vec3 hitpoint) {
+        Vec3 dif = hitpoint.subtract(center);
+        return new Vec3(dif.x / axes.x, dif.y / axes.y, dif.z / axes.z)
+                .normalized();
+    }
+
 }

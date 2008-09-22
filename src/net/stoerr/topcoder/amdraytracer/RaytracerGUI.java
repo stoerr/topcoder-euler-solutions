@@ -23,6 +23,7 @@ import javax.swing.JDialog;
 import javax.swing.SwingWorker;
 
 import java.awt.Dimension;
+import java.util.List;
 
 public class RaytracerGUI {
 
@@ -64,6 +65,8 @@ public class RaytracerGUI {
 
     private ArrayImageDisplayer im = null; // @jve:decl-index=0:
 
+    private RayTracer rayTracer;
+
     /**
      * This method initializes jFrame
      * 
@@ -76,8 +79,7 @@ public class RaytracerGUI {
             jFrame.setJMenuBar(getJJMenuBar());
             jFrame.setContentPane(getJContentPane());
             jFrame.setTitle("RaytracerGUI");
-            jFrame.setSize(700, 700);
-            startWorker();
+            jFrame.setSize(1100, 1100);
         }
         return jFrame;
     }
@@ -107,7 +109,7 @@ public class RaytracerGUI {
 
     private ArrayImageDisplayer getIm() {
         if (im == null) {
-            im = new ArrayImageDisplayer(500, 500);
+            im = new ArrayImageDisplayer(RayTracer.XS, RayTracer.YS);
         }
         return im;
     }
@@ -323,30 +325,45 @@ public class RaytracerGUI {
             public void run() {
                 RaytracerGUI application = new RaytracerGUI();
                 application.getJFrame().setVisible(true);
+                application.startTracing();
             }
         });
     }
 
-    private void startWorker() {
+    private void startTracing() {
+        rayTracer = new RayTracer(im.a);
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             @Override
             protected Void doInBackground() throws Exception {
-                for (int x = 0; x < im.xs; ++x)
-                    for (int y = 0; y < im.ys; ++y) {
-                        im.a[x][y] = x + 5 * y * y;
-                    }
                 return null;
-            }
-
-            @Override
-            protected void done() {
-                im.refresh();
-                super.done();
             }
 
         };
         worker.execute();
+
+        SwingWorker<Void, Void> displayer = new SwingWorker<Void, Void>() {
+            int i;
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                while (true) {
+                    rayTracer.lightScreen();
+                    // Thread.sleep(2000);
+                    publish();
+                }
+            }
+
+            @Override
+            protected void process(List<Void> arg0) {
+                ++i;
+                statusLabel.setText(String.valueOf(i));
+                im.refresh();
+            }
+
+        };
+        displayer.execute();
+
     }
 
 }

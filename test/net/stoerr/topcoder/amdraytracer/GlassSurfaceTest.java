@@ -20,6 +20,7 @@ public class GlassSurfaceTest extends TestCase {
         Vec3 v = s.refract(dir, nrm);
         assertEquals(2, sin(acos(dir.cosine(nrm))) / sin(acos(v.cosine(nrm))),
                 1e-6);
+        assertTrue(0 < dir.scalar(v));
     }
 
     public void testRefract2() {
@@ -28,6 +29,7 @@ public class GlassSurfaceTest extends TestCase {
         Vec3 v = s.refract(dir, nrm);
         assertEquals(0.5,
                 sin(acos(dir.cosine(nrm))) / sin(acos(v.cosine(nrm))), 1e-6);
+        assertTrue(0 < dir.scalar(v));
     }
 
     public void testRefract3() {
@@ -39,10 +41,19 @@ public class GlassSurfaceTest extends TestCase {
                 double n = sin(acos(dir.cosine(nrm)))
                         / sin(acos(v.cosine(nrm)));
                 assertTrue("" + n, 1e-6 > (n - 2) || 1e-6 > (n - 0.5));
+                assertTrue(0 < dir.scalar(v));
             }
             double tc = s.transCoeff(dir, nrm, v);
             assertTrue(""+tc, 0 <= tc && tc <= 1);
         }
+    }
+
+    public void testRefract4() {
+        Vec3 dir = new Vec3(0, 0, -1);
+        Vec3 nrm = new Vec3(0, 0, -1);
+        Vec3 v = s.refract(dir, nrm);
+        assertEquals(0.5,
+                sin(acos(dir.cosine(nrm))) / sin(acos(v.cosine(nrm))), 1e-6);
     }
 
 }
