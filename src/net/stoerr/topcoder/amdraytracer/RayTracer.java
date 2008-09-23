@@ -9,7 +9,7 @@ public final class RayTracer implements RaytracerExamples {
     private static final int LIGHTSCREEN_CHUNKSIZE = 100000;
 
     // FIXME nur 5 Sekunden!
-    final long calculationTime = 1000 * 5;
+    final long calculationTime = 1000 * 20;
 
     public double[] render(String[] ellipsoids, String[] lights) {
         throw new UnsupportedOperationException(); // FIXME
@@ -51,8 +51,8 @@ public final class RayTracer implements RaytracerExamples {
          * lights.add(new Vec3(0, 0, 500)); objects.add(new Ellipsoid(new
          * Vec3(0, 0, 101), new Vec3(100, 100, 100)));
          */
-        lights.addAll(EX4_LIGHTS);
-        objects.addAll(EX4_OBJS);
+        lights.addAll(EX0_LIGHTS);
+        objects.addAll(EX0_OBJS);
         this.a = a;
         this.c = c;
     }

@@ -1,6 +1,5 @@
 package net.stoerr.topcoder.amdraytracer;
 
-import java.awt.Image;
 import java.awt.image.MemoryImageSource;
 
 public final class ArrayImageDisplayer {
@@ -36,7 +35,8 @@ public final class ArrayImageDisplayer {
         max = Math.sqrt(max);
         int i = 0;
         final double f = 256 / max;
-        for (int y = ys-1; y >= 0; --y) {
+        // for (int y = ys-1; y >= 0; --y) {
+        for (int y = 0; y >= ys; ++y) {
             for (int x = 0; x < xs; ++x) {
                 int gray = (int) Math.floor(f * a[x][y]);
                 if (0 > gray)
