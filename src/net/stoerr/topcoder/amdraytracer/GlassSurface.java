@@ -1,10 +1,11 @@
 package net.stoerr.topcoder.amdraytracer;
 
-import static java.lang.Math.*;
+import static java.lang.Math.abs;
+import static java.lang.Math.sqrt;
 
 /**
  * A glass surface. <br>
- * 
+ *
  * x2=sqrt(n*n+x1*x1-1)
  */
 public final class GlassSurface {
@@ -31,18 +32,20 @@ public final class GlassSurface {
         if (0 > cos) {
             n = relrefraction;
             normal = normal.scale(-1);
+            cos = -cos;
         }
         double c = n * n + cos * cos - 1;
         if (0 > c)
             return null;
-        double f = sqrt(c) + cos;
-        return direction.add(normal.scale(f)).normalized();
+        double f = sqrt(c) - cos;
+        Vec3 dn = direction.add(normal.scale(f));
+        return dn.normalized();
     }
 
     /**
      * Transmission coefficient according to Fresnel equations
      * http://en.wikipedia.org/wiki/Fresnel_equations
-     * 
+     *
      * @param dir
      *            direction of incoming ray
      * @param normal
