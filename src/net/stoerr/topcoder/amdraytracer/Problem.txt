@@ -1,0 +1,149 @@
+Problem Statement
+    
+Rendering a computer generated image is a huge research area, with many aspects. In this problem we will focus on one aspect of this problem: rendering glass objects. In particular, you will be given the locations of a number of glass ellipsoids and a number of light sources. Each light source will cast some amount of pure, single frequency light, uniformly in every direction.  Each of the ellipsoids will have an index of refraction of 2, which determines the way light interacts with it (we will assume an index of refraction of 1 for the air around the ellipsoids). To make things simpler, we will ignore the effects of polarization in this problem.  When a ray of light strikes the surface of an ellipsoid (either from within or without) some of the light is transmitted through the surface, and some is reflected off the surface. The angle of the reflected light ray is given by the law of reflection. The angle of the refracted light is given by Snell's law. To determine what fraction of the light is reflected and what fraction is transmitted, we use the Fresnel equations. Since we are ignoring polarization, we will always be using a reflection coefficient of R = (RS+RP)/2. It is important to note that in some cases we have total internal reflection.  Your task here is to render a scene from a camera at (500,500,500) pointed in the -z direction. The camera has a view angle of 90 degrees. The only object in the scene other than the glass ellipsoids is a square surface spanning from (0,0,0) to (1000,1000,0). Your should return a double[] with one million elements, representing a 1000x1000 image from the camera. Pixel (x,y) should give the intensity of a ray pointed from the camera to the point (x+0.5,y+0.5).  It is easiest to think about the rendering process in terms of a two-stage ray tracer. To do this, we first calculate the intensity of light at each location on the square surface. Once this is done, we then consider a ray leaving the camera, towards a part of the scene. If the ray from the camera strikes the square surface, our task is now easy, as we've already computed the intensity of the surface. If, however, it strikes an ellipsoid, we can use the same equations mentioned above to determine the fractional contribution from the part of the light that passes through the surface and the contribution of the reflected light. It is important to note that the lights do not have any impact in the second stage. A good way to think about it is that the lights serve to illuminate the square surface in stage one, are then turned off, and the camera is turned on, while the square surface remains illuminated.  You will be given a String[] ellipsoids, describing the location and size of each ellipsoid. Each element will be formatted as "CENTERx CENTERy CENTERz A B C", describing an ellipsoid ((x-CENTERx)/A)2 + ((y-CENTERy)/B)2 + ((z-CENTERz)/C)2 = 1. You will also be given a String, lights, each element of which is formatted as "X Y Z", describing a light.  Your task is to return a double[], where element x*1000+y is the intensity of light observed by the camera when looking towards (x+0.5,y+0.5) -- a raster image, in other words.  When comparing your image to the reference image, the first thing we will do is normalize the image so that the average intensity of the pixels in the image is 1.0. Once this is done, we will compute the error of each pixel as abs(sqrt(YOU)-sqrt(REFERENCE)). Your score for an image will be the sum of the errors for the pixels in the image, plus 5% per second of computation. Your overall score will be computed using relative scoring. If the best score for a particular scene is BEST, and you score YOU, your score for that scene will be BEST/YOU.  
+Getting Started
+Writing a ray tracer is no easy task, so to help you get started, a C implementation of this problem is being provided (it is designed to work offline -- it is not a submission). It works by picking a random direction, and emitting a single ray of light from each of the light sources in that direction. When a ray of light hits a surface, two recursive calls are made, one for the ray passing through the surface (unless there is total internal refraction) and one for the ray of light reflected off the surface. The intensities of these rays are scaled appropriately. This is continued until the intensity of the light drops below a threshold, or a maximum recursive depth is reached, or the ray strikes the square surface. The total intensity of the rays striking the surface in each 1x1 grid cell is accumulated. After a large number of random rays are emitted, the second stage of the algorithm starts. A ray is directed from the camera to each of the locations, and again when it hits a surface two recursive calls are made. If the ray hits the surface, the intensity of the 1x1 grid cell it strikes is recorded.  You may freely discuss how this implementation works in the forums, so long as you do not suggest or discuss improvements.
+Test generation
+The tests are generated by first picking N and M, the number of ellipsoids and lights, respectively. N ellipsoids are then randomly placed, where each one is placed so that it does not intersect with any of the others. The M lights are then placed so that none of them are inside any of the ellipsoids. The centers of the ellipsoids are randomly chosen as points in the view area. The 3 size parameters are chosen between 10 and 100. The ellipsoids will not intersect the square surface. The lights are chosen to have z coordinate between 200 and 500. The generation code can be found at http://www.topcoder.com/contest/problem/RayTracer/Generate.java.
+Definition
+    
+Class:
+RayTracer
+Method:
+render
+Parameters:
+String[], String[]
+Returns:
+double[]
+Method signature:
+double[] render(String[] ellipsoids, String[] lights)
+(be sure your methods are public)
+    
+
+Notes
+-
+Because your return will be scaled to have an average intensity of 1, that absolute scale does not matter.
+-
+The reference images are created using a ray tracer which is much slower than your must be.
+-
+The time limit for each image is 10 seconds.
+-
+The grayscale images are created using the square root of intensity, as this gives a better visual.
+-
+The memory limit is 1024M and there is no code size limit.
+-
+Higher quality reference images (with less aliasing) are currently rendering.
+Constraints
+-
+There will be between 1 and 5 light sources, inclusive.
+-
+There will be between 1 and 50 ellipsoids, inclusive.
+Examples
+0)
+
+    
+
+N = 24, M = 1
+Ellipsoids:
+355.555813 667.041444 173.665646 12.305219 59.773426 89.020176
+826.230430 786.352404 150.223397 14.390755 35.383386 87.782143
+667.237420 170.324162 95.791570 35.318688 41.790706 43.550781
+134.303892 371.361721 96.783811 20.400289 83.147760 66.971261
+580.305987 484.447065 342.258477 42.326733 94.695663 80.017503
+272.862839 183.284452 14.055876 22.566264 87.920914 13.655857
+822.929677 235.210618 115.579985 18.262342 77.433294 38.093873
+458.266701 495.745137 366.237962 60.626334 26.718073 43.352804
+685.127395 676.027574 177.854815 94.862104 57.212536 21.895791
+681.967684 411.231269 216.969798 16.202888 40.278567 31.230602
+481.035034 488.286671 120.259859 63.655532 21.929522 77.593592
+344.712235 407.579651 70.955672 17.122807 45.058801 27.119990
+359.845557 433.530841 274.638790 64.319746 15.355656 68.182344
+381.913272 215.099990 55.524497 55.630294 87.246979 52.587848
+257.785911 553.719018 202.131459 25.835228 68.281704 70.110868
+389.763205 519.052216 101.655762 11.681565 62.716370 50.440170
+526.929602 859.139435 49.095130 56.389011 32.295167 11.397487
+535.251174 347.207111 220.840284 13.231640 14.118912 48.733043
+861.159948 123.506746 85.335577 39.909114 35.518625 15.171137
+706.882425 629.411002 227.718114 34.179730 80.676735 25.793894
+161.997989 694.620740 37.929031 78.473802 72.692455 22.062109
+708.412394 376.536393 124.861267 62.638587 97.600654 54.880680
+479.748163 691.753296 148.119063 29.063361 67.992412 30.165112
+251.657143 789.169595 149.174982 67.703422 52.195775 92.153442
+
+Lights:
+181.841542 297.082054 294.933768
+View
+1)
+
+    
+
+N=6, M=3
+Ellipsoids:
+274.298630 451.915186 174.504464 99.559977 67.143985 49.245827
+792.077207 500.152747 151.437317 54.847691 55.870127 79.265737
+619.077040 377.084440 251.555469 40.869409 50.642001 99.374695
+775.510023 779.047563 90.415982 70.380960 88.262998 35.532162
+582.125738 578.508633 384.639409 18.763131 35.582797 99.597106
+458.401622 771.053509 102.818638 66.235406 40.553860 39.183200
+
+Lights:
+47.340377 704.185886 251.283742
+469.565552 251.474000 409.377205
+965.463116 925.586822 456.465714
+View
+2)
+
+    
+
+N=7, M=2
+Ellipsoids:
+224.866428 449.603111 66.799925 65.726356 40.032166 50.668248
+786.364561 704.536483 130.557594 20.663274 32.896199 49.076420
+692.116266 605.334890 157.284514 71.480039 50.007858 91.725226
+287.814970 240.556180 108.152490 16.243843 23.554243 97.180589
+573.029385 711.530000 191.149081 86.079627 59.523708 97.701784
+97.956431 510.595167 39.414780 53.039000 70.650097 36.204342
+652.252283 700.323831 21.621894 80.427172 92.571358 10.112650
+
+Lights:
+772.816207 990.001285 375.171825
+496.699032 225.881903 478.338844
+View
+3)
+
+    
+
+N=5, M=2
+Ellipsoids:
+660.867516 641.377803 105.174348 86.132563 73.329361 75.988720
+772.370163 503.765845 181.557957 21.448964 16.640658 24.002753
+448.605534 614.133479 222.152266 57.257763 89.429672 56.439502
+626.665710 515.739938 285.761068 39.326060 23.289240 25.539689
+481.660246 719.439216 115.189538 58.283953 81.716163 36.972316
+
+Lights:
+266.547712 109.840554 226.816396
+171.813133 932.643882 317.062191
+View
+4)
+
+    
+
+N=6, M=5
+Ellipsoids:
+266.142005 287.157418 111.859221 65.772292 97.444718 90.397655
+339.370621 741.168010 122.901719 58.844121 80.370298 97.333088
+289.046760 617.816390 48.671553 74.435493 33.711698 38.757165
+758.976133 515.780078 26.035708 61.735676 78.876435 22.708943
+432.048182 642.425819 329.459385 92.894829 27.923886 89.856122
+706.945808 904.219301 63.900782 27.230466 23.890994 61.872470
+
+Lights:
+439.961939 403.037767 221.468091
+636.454249 271.118454 271.040817
+215.413045 93.747428 366.247561
+680.478774 51.452164 239.571366
+381.317388 91.936059 341.247081
+View
+ 
+This problem statement is the exclusive and proprietary property of TopCoder, Inc. Any unauthorized use or reproduction of this information without the prior written consent of TopCoder, Inc. is strictly prohibited. (c)2003, TopCoder, Inc. All rights reserved.
