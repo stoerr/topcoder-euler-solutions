@@ -18,8 +18,8 @@ public final class RayTracer implements RaytracerExamples {
 
     public static final int MAXDEPTH = 5;
 
-    public final MappedParallelogram screen = new MappedParallelogram(new Vec3(
-            0, 0, 0), new Vec3(1000, 0, 0), new Vec3(0, 1000, 0), XS, YS);
+    public final MappedParallelogram screen = new MappedParallelogram(new Vec3(0, 0, 0), new Vec3(1000, 0, 0), new Vec3(
+            0, 1000, 0), XS, YS);
 
     public final Vec3 view = new Vec3(500, 500, 500);
 
@@ -30,14 +30,15 @@ public final class RayTracer implements RaytracerExamples {
     public final GlassSurface surface = new GlassSurface(2);
 
     /** screen */
-    private double[][] a;
+    double[][] a;
     /** camera */
-    private double[][] c;
+    double[][] c;
 
     public RayTracer(double a[][]) {
-        /* lights.add(new Vec3(0, 0, 500));
-        objects.add(new Ellipsoid(new Vec3(0, 0, 101),
-                new Vec3(100, 100, 100))); */
+        /*
+         * lights.add(new Vec3(0, 0, 500)); objects.add(new Ellipsoid(new
+         * Vec3(0, 0, 101), new Vec3(100, 100, 100)));
+         */
         lights.addAll(EX4_LIGHTS);
         objects.addAll(EX4_OBJS);
         this.a = a;
@@ -46,8 +47,8 @@ public final class RayTracer implements RaytracerExamples {
     /** Ein Erleuchtungslauf; einige Dutzend sind nötig. */
     public void lightScreen() {
         for (int i = 0; i < XS * YS; ++i) {
-            for (Iterator iter = lights.iterator(); iter.hasNext();) {
-                Vec3 l = (Vec3) iter.next();
+            for (Iterator<Vec3> iter = lights.iterator(); iter.hasNext();) {
+                Vec3 l = iter.next();
                 Vec3 dir = Vec3.randomUnity();
                 Ray r = new Ray(l, dir);
                 PMC2<Vec3, Double> block = new PMC2<Vec3, Double>() {
@@ -60,26 +61,31 @@ public final class RayTracer implements RaytracerExamples {
             }
         }
     }
-    
+
     /** Projektion auf die Cameraflaeche */
     public void snapshot() {
         c = new double[XS][XS];
-        for (int x=0; x<XS; ++x) {
-            for (int y=0; y<YS; ++y) {
-                Vec3 p = screen.gridpoint(x,y);
+        SnapshotBlock block = new SnapshotBlock();
+        for (block.x = 0; block.x < XS; ++block.x) {
+            for (block.y = 0; block.y < YS; ++block.y) {
+                Vec3 p = screen.gridpoint(block.x, block.y);
                 Ray r = new Ray(view, p.subtract(view));
-                PMC2<Vec3, Double> block = new PMC2<Vec3, Double>() {
-                    public void execute(Vec3 hit, Double intensity) {
-                        xxx
-                    }
-                };
                 trace(r, 1, block, MAXDEPTH);
             }
         }
     }
 
-    private void trace(Ray r, double intensity, PMC2<Vec3, Double> block,
-            int maxdepth) {
+    class SnapshotBlock implements PMC2<Vec3, Double> {
+        int x;
+        int y;
+
+        public void execute(Vec3 p, Double intensity) {
+            IVec2 hit = screen.icoordinates(p);
+            c[x][y] += intensity * a[hit.x][hit.y];
+        }
+    }
+
+    private void trace(Ray r, double intensity, PMC2<Vec3, Double> block, int maxdepth) {
         if (intensity < MIN_INTENSITY || maxdepth < 0)
             return;
         Vec3 hit = null;
@@ -104,13 +110,14 @@ public final class RayTracer implements RaytracerExamples {
             if (screenDist == dist) {
                 block.execute(hit, intensity);
             } else { // hit on a ellipsoid
+                @SuppressWarnings("null")
                 Vec3 normal = hitOid.normal(hit);
                 Vec3 reflect = surface.reflect(r.direction, normal);
                 Vec3 refract = surface.refract(r.direction, normal);
                 double trans = surface.transCoeff(r.direction, normal, refract);
-                trace(new Ray(hit, reflect), intensity*(1-trans), block, maxdepth-1);
+                trace(new Ray(hit, reflect), intensity * (1 - trans), block, maxdepth - 1);
                 if (null != refract) {
-                    trace(new Ray(hit, refract), intensity*trans, block, maxdepth-1);
+                    trace(new Ray(hit, refract), intensity * trans, block, maxdepth - 1);
                 }
             }
         }
