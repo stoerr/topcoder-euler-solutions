@@ -12,7 +12,7 @@ import junit.framework.TestCase;
  * @since 18.09.2008
  */
 public class Vec3Test extends TestCase {
-    
+
     static final double delta = 1e-6;
 
     public final void testCross() {
@@ -28,12 +28,17 @@ public class Vec3Test extends TestCase {
         assertEquals(0, v1.cross(v1).length(), delta);
         assertEquals(0, v2v1.scale(-1).distance(v1v2), delta);
     }
-    
+
     public final void testProjection() {
         assertEq(new Vec3(0,2,0),new Vec3(4,2,0).project(new Vec3(0,5,0)));
     }
-    
+
     public static void assertEq(Vec3 x, Vec3 y) {
         assertEquals(x + " vs. " + y, 0, x.subtract(y).length(), delta);
+    }
+
+    public final void testConstruction() {
+        Vec3 v = new Vec3("181.841542 297.082054 294.933768");
+        assertEq(v, new Vec3(181.841542, 297.082054, 294.933768));
     }
 }

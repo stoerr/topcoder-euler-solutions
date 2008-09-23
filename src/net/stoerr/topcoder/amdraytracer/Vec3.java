@@ -1,6 +1,11 @@
 package net.stoerr.topcoder.amdraytracer;
 
-import static java.lang.Math.*;
+import static java.lang.Math.PI;
+import static java.lang.Math.acos;
+import static java.lang.Math.asin;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
 
 /**
  * A threedimensional vector.
@@ -23,6 +28,17 @@ public final class Vec3 {
         this.y = y;
         this.z = z;
         this.normalized = false;
+    }
+
+    /**
+     * For example 181.841542 297.082054 294.933768
+     */
+    public Vec3(String descr) {
+        String[] vals = descr.split("\\s");
+        x = Double.valueOf(vals[0]);
+        y = Double.valueOf(vals[1]);
+        z = Double.valueOf(vals[2]);
+        normalized = false;
     }
 
     private Vec3(double x, double y, double z, boolean normalized) {

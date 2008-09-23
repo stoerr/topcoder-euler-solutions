@@ -36,7 +36,7 @@ public final class ArrayImageDisplayer {
         int i = 0;
         final double f = 256 / max;
         // for (int y = ys-1; y >= 0; --y) {
-        for (int y = 0; y >= ys; ++y) {
+        for (int y = 0; y < ys; ++y) {
             for (int x = 0; x < xs; ++x) {
                 int gray = (int) Math.floor(f * a[x][y]);
                 if (0 > gray)

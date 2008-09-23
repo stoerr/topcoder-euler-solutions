@@ -111,7 +111,7 @@ public final class RaytracerGUI {
             @Override
             protected Void doInBackground() throws Exception {
                 while (true) {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                     publish();
                 }
             }

@@ -3,23 +3,49 @@ package net.stoerr.topcoder.amdraytracer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
 
 public final class RayTracer implements RaytracerExamples {
 
     private static final int LIGHTSCREEN_CHUNKSIZE = 100000;
 
-    // FIXME nur 5 Sekunden!
-    final long calculationTime = 1000 * 20;
+    final int NUM_THREADS = 1;
 
-    public double[] render(String[] ellipsoids, String[] lights) {
-        throw new UnsupportedOperationException(); // FIXME
+    // FIXME nur 5 Sekunden!
+    final long calculationTime = 1000 * 5;
+
+    public double[] render(String[] ellipsoids, String[] thelights) {
+        try {
+            for (String el : ellipsoids) {
+                Ellipsoid e = new Ellipsoid(el);
+                objects.add(e);
+            }
+            for (String li : thelights) {
+                Vec3 l = new Vec3(li);
+                this.lights.add(l);
+            }
+            doRendering();
+            if (null != exception)
+                exception.printStackTrace();
+            double[] res = new double[XS * YS];
+            int i = 0;
+            for (int x = 0; x < XS; ++x) {
+                for (int y = 0; y < YS; ++y) {
+                    res[i++] = c[x][y];
+                }
+            }
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public static final int XS = 1000;
 
     public static final int YS = 1000;
 
-    public static final double MIN_INTENSITY = 0.01;
+    public static final double MIN_INTENSITY = 0.05;
 
     public static final int MAXDEPTH = 5;
 
@@ -34,13 +60,15 @@ public final class RayTracer implements RaytracerExamples {
 
     public final GlassSurface surface = new GlassSurface(2);
 
+    Exception exception = null;
+
     /** screen */
     double[][] a;
     /** camera */
     double[][] c;
 
     long rays = 0;
-    final long begintime = System.currentTimeMillis();
+    long begintime;
 
     synchronized void incrementRays(long val) {
         rays += val;
@@ -57,6 +85,15 @@ public final class RayTracer implements RaytracerExamples {
         this.c = c;
     }
 
+    public RayTracer() {
+        a = new double[XS][YS];
+        c = new double[XS][YS];
+        lights.clear();
+        objects.clear();
+        rays = 0;
+    }
+
+    int lightscreencnt = 0;
     /** {@link #calculationTime} langer Erleuchtungslauf */
     public void lightScreen() {
         while (System.currentTimeMillis() < begintime + calculationTime) {
@@ -69,25 +106,40 @@ public final class RayTracer implements RaytracerExamples {
                         public void execute(Vec3 hit, Double intensity) {
                             IVec2 coords = screen.icoordinates(hit);
                             a[coords.x][coords.y] += intensity;
+                            lightscreencnt++;
                         }
                     };
-                    trace(r, 1, block, MAXDEPTH);
+                    try {
+                        trace(r, 1, block, MAXDEPTH);
+                    } catch (RuntimeException e) {
+                        exception = e;
+                    }
                 }
             }
             incrementRays(LIGHTSCREEN_CHUNKSIZE);
         }
+        System.out.println("lightscreencount = " + lightscreencnt);
     }
 
+
+    int snapshotcnt = 0;
+
     /** Projektion auf die Cameraflaeche */
-    public void snapshot() {
+    public void snapshot(int num, int count) {
         SnapshotBlock block = new SnapshotBlock();
-        for (block.x = 0; block.x < XS; ++block.x) {
+        for (block.x = num; block.x < XS; block.x += count) {
             for (block.y = 0; block.y < YS; ++block.y) {
                 Vec3 p = screen.gridpoint(block.x, block.y);
                 Ray r = new Ray(view, p.subtract(view));
-                trace(r, 1, block, MAXDEPTH);
+                snapshotcnt++;
+                try {
+                    trace(r, 1, block, MAXDEPTH);
+                } catch (RuntimeException e) {
+                    exception = e;
+                }
             }
         }
+        System.out.println("Snapshotcount " + snapshotcnt);
     }
 
     class SnapshotBlock implements PMC2<Vec3, Double> {
@@ -98,6 +150,7 @@ public final class RayTracer implements RaytracerExamples {
             IVec2 hit = screen.icoordinates(p);
             // TODO interpolation
             c[x][y] += intensity * a[hit.x][hit.y];
+            snapshotcnt++;
         }
     }
 
@@ -143,7 +196,8 @@ public final class RayTracer implements RaytracerExamples {
      * Running average on the lines and rows of a.
      */
     private void smoothScreen() {
-        final int width = 8;
+        final int width = (int) Math.round(Math.sqrt(XS * XS * 100.0d / rays));
+        System.out.println("Smooth factor " + width + " becayse of " + rays + " rays.");
         int x = 0;
         int y = 0;
         try {
@@ -190,20 +244,58 @@ public final class RayTracer implements RaytracerExamples {
         return rays + " rays done.";
     }
 
+    CyclicBarrier barrier;
+
+    abstract class ParmThread extends Thread {
+        int i;
+        int j;
+    }
+
     /**
-     * The complete rendering process. FIXME : multithreading.
+     * The complete rendering process.
      */
-    public void doRendering() {
+    public void doRendering() throws Exception {
+        begintime = System.currentTimeMillis();
         long beg;
         long en;
-        lightScreen();
+        barrier = new CyclicBarrier(NUM_THREADS + 1);
         beg = System.currentTimeMillis();
-        smoothScreen();
-        smoothScreen();
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        lightScreen();
+                        barrier.await();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
+        barrier.await();
         en = System.currentTimeMillis();
-        System.out.println("Smooth time " + 0.001 * (en - beg));
+        System.out.println("lighting " + 0.001 * (en - beg));
+        smoothScreen();
+        smoothScreen();
         beg = System.currentTimeMillis();
-        snapshot();
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ParmThread t = new ParmThread() {
+                @Override
+                public void run() {
+                    try {
+                        snapshot(i, j);
+                        barrier.await();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            t.i = i;
+            t.j = NUM_THREADS;
+            t.start();
+        }
+        barrier.await();
         en = System.currentTimeMillis();
         System.out.println("Snapshot time " + 0.001 * (en - beg));
     }
