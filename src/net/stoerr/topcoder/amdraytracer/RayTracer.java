@@ -6,10 +6,10 @@ import java.util.List;
 
 public final class RayTracer implements RaytracerExamples {
 
-    /**
-     *
-     */
     private static final int LIGHTSCREEN_CHUNKSIZE = 100000;
+
+    // FIXME nur 5 Sekunden!
+    final long calculationTime = 1000 * 5;
 
     public double[] render(String[] ellipsoids, String[] lights) {
         throw new UnsupportedOperationException(); // FIXME
@@ -41,8 +41,6 @@ public final class RayTracer implements RaytracerExamples {
 
     long rays = 0;
     final long begintime = System.currentTimeMillis();
-    // FIXME nur 5 Sekunden!
-    final long calculationTime = 1000 * 20;
 
     synchronized void incrementRays(long val) {
         rays += val;
@@ -98,6 +96,7 @@ public final class RayTracer implements RaytracerExamples {
 
         public void execute(Vec3 p, Double intensity) {
             IVec2 hit = screen.icoordinates(p);
+            // TODO interpolation
             c[x][y] += intensity * a[hit.x][hit.y];
         }
     }
@@ -141,21 +140,71 @@ public final class RayTracer implements RaytracerExamples {
     }
 
     /**
+     * Running average on the lines and rows of a.
+     */
+    private void smoothScreen() {
+        final int width = 8;
+        int x = 0;
+        int y = 0;
+        try {
+            for (x = 0; x < XS; ++x) {
+                double sum = 0;
+                int cnt = 0;
+                for (y = 0; y < YS; ++y) {
+                    sum += a[x][y];
+                    cnt++;
+                    if (width < cnt || y >= YS - width) {
+                        cnt--;
+                        sum -= a[x][y - cnt];
+                    }
+                    c[x][y - cnt / 2] = sum / cnt;
+                }
+            }
+            for (y = 0; y < XS; ++y) {
+                double sum = 0;
+                int cnt = 0;
+                for (x = 0; x < YS; ++x) {
+                    sum += c[x][y];
+                    cnt++;
+                    if (width < cnt || x >= XS - width) {
+                        cnt--;
+                        sum -= c[x - cnt][y];
+                    }
+                    a[x - cnt / 2][y] = sum / cnt;
+                }
+            }
+            for (x = 0; x < XS; ++x) {
+                for (y = 0; y < YS; ++y) {
+                    c[x][y] = 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * @return
      */
     public String getStatusText() {
-        return "none";
+        return rays + " rays done.";
     }
 
     /**
      * The complete rendering process. FIXME : multithreading.
      */
     public void doRendering() {
+        long beg;
+        long en;
         lightScreen();
-        // TODO smooth
-        long beg = System.currentTimeMillis();
+        beg = System.currentTimeMillis();
+        smoothScreen();
+        smoothScreen();
+        en = System.currentTimeMillis();
+        System.out.println("Smooth time " + 0.001 * (en - beg));
+        beg = System.currentTimeMillis();
         snapshot();
-        long en = System.currentTimeMillis();
+        en = System.currentTimeMillis();
         System.out.println("Snapshot time " + 0.001 * (en - beg));
     }
 

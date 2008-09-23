@@ -106,13 +106,12 @@ public final class RaytracerGUI {
     }
 
     void startTracing() {
-        rayTracer = new RayTracer(screen.a, camera.a);
         SwingWorker<Void, Void> displayer = new SwingWorker<Void, Void>() {
 
             @Override
             protected Void doInBackground() throws Exception {
                 while (true) {
-                    Thread.sleep(5000);
+                    Thread.sleep(2000);
                     publish();
                 }
             }
@@ -127,8 +126,17 @@ public final class RaytracerGUI {
         };
         displayer.execute();
 
-        rayTracer.doRendering();
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
+            @Override
+            protected Void doInBackground() throws Exception {
+                rayTracer = new RayTracer(screen.a, camera.a);
+                rayTracer.doRendering();
+                return null;
+            }
+
+        };
+        worker.execute();
     }
 
 }
