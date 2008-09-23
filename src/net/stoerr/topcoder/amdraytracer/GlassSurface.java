@@ -4,9 +4,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
 /**
- * A glass surface. <br>
- *
- * x2=sqrt(n*n+x1*x1-1)
+ * A glass surface.
  */
 public final class GlassSurface {
 
