@@ -18,15 +18,21 @@ public final class RaytracerGUI {
 
     private JPanel jContentPane = null;
 
-    private JLabel statusLabel = null;
+    JLabel statusLabel = null;
 
-    private JLabel imageLabel = null;
+    private JLabel screenImageLabel = null;
 
-    private Image image = null;
+    private Image screenImage = null;
 
-    private ArrayImageDisplayer im = null; // @jve:decl-index=0:
+    ArrayImageDisplayer camera = null; // @jve:decl-index=0:
 
-    private RayTracer rayTracer;
+    private JLabel cameraImageLabel = null;
+
+    private Image cameraImage = null;
+
+    ArrayImageDisplayer screen = null;
+
+    RayTracer rayTracer;
 
     /**
      * This method initializes jFrame
@@ -39,7 +45,7 @@ public final class RaytracerGUI {
             jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             jFrame.setContentPane(getJContentPane());
             jFrame.setTitle("RaytracerGUI");
-            jFrame.setSize(1100, 1100);
+            jFrame.setSize(2100, 1100);
         }
         return jFrame;
     }
@@ -51,27 +57,39 @@ public final class RaytracerGUI {
      */
     private JPanel getJContentPane() {
         if (jContentPane == null) {
-            imageLabel = new JLabel();
-            imageLabel.setText(""); // Generated
+            screenImageLabel = new JLabel();
+            screenImageLabel.setText(""); // Generated
+            cameraImageLabel = new JLabel();
+            cameraImageLabel.setText(""); // Generated
             statusLabel = new JLabel();
             statusLabel.setText("JLabel"); // Generated
             jContentPane = new JPanel();
             jContentPane.setLayout(new BorderLayout());
             jContentPane.add(statusLabel, BorderLayout.SOUTH); // Generated
-            jContentPane.add(imageLabel, BorderLayout.CENTER); // Generated
-            ArrayImageDisplayer arr = getIm();
-            image = jContentPane.createImage(arr.source);
-            imageLabel.setIcon(new ImageIcon(image));
-            imageLabel.setPreferredSize(new Dimension(arr.xs, arr.ys));
+            jContentPane.add(screenImageLabel, BorderLayout.CENTER); // Generated
+            jContentPane.add(cameraImageLabel, BorderLayout.EAST); // Generated
+            screenImage = jContentPane.createImage(getScreen().source);
+            screenImageLabel.setIcon(new ImageIcon(screenImage));
+            screenImageLabel.setPreferredSize(new Dimension(screen.xs, screen.ys));
+            cameraImage = jContentPane.createImage(getCamera().source);
+            cameraImageLabel.setIcon(new ImageIcon(cameraImage));
+            cameraImageLabel.setPreferredSize(new Dimension(camera.xs, camera.ys));
         }
         return jContentPane;
     }
 
-    private ArrayImageDisplayer getIm() {
-        if (im == null) {
-            im = new ArrayImageDisplayer(RayTracer.XS, RayTracer.YS);
+    private ArrayImageDisplayer getScreen() {
+        if (screen == null) {
+            screen = new ArrayImageDisplayer(RayTracer.XS, RayTracer.YS);
         }
-        return im;
+        return screen;
+    }
+
+    private ArrayImageDisplayer getCamera() {
+        if (camera == null) {
+            camera = new ArrayImageDisplayer(RayTracer.XS, RayTracer.YS);
+        }
+        return camera;
     }
 
     /**
@@ -88,24 +106,12 @@ public final class RaytracerGUI {
     }
 
     void startTracing() {
-        rayTracer = new RayTracer(im.a);
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-            @Override
-            protected Void doInBackground() throws Exception {
-                return null;
-            }
-
-        };
-        worker.execute();
-
+        rayTracer = new RayTracer(screen.a, camera.a);
         SwingWorker<Void, Void> displayer = new SwingWorker<Void, Void>() {
-            int i;
 
             @Override
             protected Void doInBackground() throws Exception {
                 while (true) {
-                    // rayTracer.lightScreen();
                     Thread.sleep(5000);
                     publish();
                 }
@@ -113,31 +119,15 @@ public final class RaytracerGUI {
 
             @Override
             protected void process(List<Void> arg0) {
-                ++i;
-                statusLabel.setText(String.valueOf(i));
-                im.refresh();
+                statusLabel.setText(rayTracer.getStatusText());
+                screen.refresh();
+                camera.refresh();
             }
 
         };
         displayer.execute();
 
-        new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    rayTracer.lightScreen();
-                }
-            }
-        }.start();
-
-        new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    rayTracer.lightScreen();
-                }
-            }
-        }.start();
+        rayTracer.doRendering();
 
     }
 

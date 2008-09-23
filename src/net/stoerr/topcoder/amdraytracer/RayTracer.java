@@ -6,6 +6,11 @@ import java.util.List;
 
 public final class RayTracer implements RaytracerExamples {
 
+    /**
+     *
+     */
+    private static final int LIGHTSCREEN_CHUNKSIZE = 100000;
+
     public double[] render(String[] ellipsoids, String[] lights) {
         throw new UnsupportedOperationException(); // FIXME
     }
@@ -34,7 +39,16 @@ public final class RayTracer implements RaytracerExamples {
     /** camera */
     double[][] c;
 
-    public RayTracer(double a[][]) {
+    long rays = 0;
+    final long begintime = System.currentTimeMillis();
+    // FIXME nur 5 Sekunden!
+    final long calculationTime = 1000 * 20;
+
+    synchronized void incrementRays(long val) {
+        rays += val;
+    }
+
+    public RayTracer(double a[][], double[][] c) {
         /*
          * lights.add(new Vec3(0, 0, 500)); objects.add(new Ellipsoid(new
          * Vec3(0, 0, 101), new Vec3(100, 100, 100)));
@@ -42,29 +56,32 @@ public final class RayTracer implements RaytracerExamples {
         lights.addAll(EX4_LIGHTS);
         objects.addAll(EX4_OBJS);
         this.a = a;
+        this.c = c;
     }
 
-    /** Ein Erleuchtungslauf; einige Dutzend sind nötig. */
+    /** {@link #calculationTime} langer Erleuchtungslauf */
     public void lightScreen() {
-        for (int i = 0; i < XS * YS; ++i) {
-            for (Iterator<Vec3> iter = lights.iterator(); iter.hasNext();) {
-                Vec3 l = iter.next();
-                Vec3 dir = Vec3.randomUnity();
-                Ray r = new Ray(l, dir);
-                PMC2<Vec3, Double> block = new PMC2<Vec3, Double>() {
-                    public void execute(Vec3 hit, Double intensity) {
-                        IVec2 coords = screen.icoordinates(hit);
-                        a[coords.x][coords.y] += intensity;
-                    }
-                };
-                trace(r, 1, block, MAXDEPTH);
+        while (System.currentTimeMillis() < begintime + calculationTime) {
+            for (int i = 0; i < LIGHTSCREEN_CHUNKSIZE; ++i) {
+                for (Iterator<Vec3> iter = lights.iterator(); iter.hasNext();) {
+                    Vec3 l = iter.next();
+                    Vec3 dir = Vec3.randomUnity();
+                    Ray r = new Ray(l, dir);
+                    PMC2<Vec3, Double> block = new PMC2<Vec3, Double>() {
+                        public void execute(Vec3 hit, Double intensity) {
+                            IVec2 coords = screen.icoordinates(hit);
+                            a[coords.x][coords.y] += intensity;
+                        }
+                    };
+                    trace(r, 1, block, MAXDEPTH);
+                }
             }
+            incrementRays(LIGHTSCREEN_CHUNKSIZE);
         }
     }
 
     /** Projektion auf die Cameraflaeche */
     public void snapshot() {
-        c = new double[XS][XS];
         SnapshotBlock block = new SnapshotBlock();
         for (block.x = 0; block.x < XS; ++block.x) {
             for (block.y = 0; block.y < YS; ++block.y) {
@@ -121,6 +138,25 @@ public final class RayTracer implements RaytracerExamples {
                 }
             }
         }
+    }
+
+    /**
+     * @return
+     */
+    public String getStatusText() {
+        return "none";
+    }
+
+    /**
+     * The complete rendering process. FIXME : multithreading.
+     */
+    public void doRendering() {
+        lightScreen();
+        // TODO smooth
+        long beg = System.currentTimeMillis();
+        snapshot();
+        long en = System.currentTimeMillis();
+        System.out.println("Snapshot time " + 0.001 * (en - beg));
     }
 
 }
