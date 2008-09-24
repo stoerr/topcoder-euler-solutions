@@ -8,49 +8,21 @@ import java.util.concurrent.CyclicBarrier;
 public final class RayTracer implements RaytracerExamples {
 
     private static final int LIGHTSCREEN_CHUNKSIZE = 100000;
-
-    final int NUM_THREADS = 1;
-
-    // FIXME nur 5 Sekunden!
-    final long calculationTime = 1000 * 5;
-
-    public double[] render(String[] ellipsoids, String[] thelights) {
-        try {
-            for (String el : ellipsoids) {
-                Ellipsoid e = new Ellipsoid(el);
-                objects.add(e);
-            }
-            for (String li : thelights) {
-                Vec3 l = new Vec3(li);
-                this.lights.add(l);
-            }
-            doRendering();
-            if (null != exception)
-                exception.printStackTrace();
-            double[] res = new double[XS * YS];
-            int i = 0;
-            for (int x = 0; x < XS; ++x) {
-                for (int y = 0; y < YS; ++y) {
-                    res[i++] = c[x][y];
-                }
-            }
-            return res;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
     public static final int XS = 1000;
-
     public static final int YS = 1000;
 
-    public static final double MIN_INTENSITY = 0.05;
+    final int NUM_THREADS = 2;
 
-    public static final int MAXDEPTH = 5;
+    final long MAXCALCTIME = 1000 * 600;
+    final long MAXRAYS = 1000*XS*YS;
 
-    public final MappedParallelogram screen = new MappedParallelogram(new Vec3(0, 0, 0), new Vec3(1000, 0, 0), new Vec3(
-            0, 1000, 0), XS, YS);
+
+    public static final double MIN_INTENSITY = 0.01;
+
+    public static final int MAXDEPTH = 50;
+
+    public final MappedParallelogram screen = new MappedParallelogram(new Vec3(
+            0, 0, 0), new Vec3(1000, 0, 0), new Vec3(0, 1000, 0), XS, YS);
 
     public final Vec3 view = new Vec3(500, 500, 500);
 
@@ -64,10 +36,12 @@ public final class RayTracer implements RaytracerExamples {
 
     /** screen */
     double[][] a;
+
     /** camera */
     double[][] c;
 
     long rays = 0;
+
     long begintime;
 
     synchronized void incrementRays(long val) {
@@ -75,12 +49,10 @@ public final class RayTracer implements RaytracerExamples {
     }
 
     public RayTracer(double a[][], double[][] c) {
-        /*
-         * lights.add(new Vec3(0, 0, 500)); objects.add(new Ellipsoid(new
-         * Vec3(0, 0, 101), new Vec3(100, 100, 100)));
-         */
-        lights.addAll(EX0_LIGHTS);
-        objects.addAll(EX0_OBJS);
+        /* lights.add(new Vec3(500, 500, 500));
+        objects.add(new Ellipsoid(new Vec3(500, 500, 200), new Vec3(100, 200,
+                300))); */
+        lights.addAll(EX0_LIGHTS); objects.addAll(EX0_OBJS);
         this.a = a;
         this.c = c;
     }
@@ -94,9 +66,10 @@ public final class RayTracer implements RaytracerExamples {
     }
 
     int lightscreencnt = 0;
-    /** {@link #calculationTime} langer Erleuchtungslauf */
+
+    /** {@link #MAXCALCTIME} langer Erleuchtungslauf */
     public void lightScreen() {
-        while (System.currentTimeMillis() < begintime + calculationTime) {
+        while (System.currentTimeMillis() < begintime + MAXCALCTIME && rays < MAXRAYS) {
             for (int i = 0; i < LIGHTSCREEN_CHUNKSIZE; ++i) {
                 for (Iterator<Vec3> iter = lights.iterator(); iter.hasNext();) {
                     Vec3 l = iter.next();
@@ -121,7 +94,6 @@ public final class RayTracer implements RaytracerExamples {
         System.out.println("lightscreencount = " + lightscreencnt);
     }
 
-
     int snapshotcnt = 0;
 
     /** Projektion auf die Cameraflaeche */
@@ -144,6 +116,7 @@ public final class RayTracer implements RaytracerExamples {
 
     class SnapshotBlock implements PMC2<Vec3, Double> {
         int x;
+
         int y;
 
         public void execute(Vec3 p, Double intensity) {
@@ -154,7 +127,8 @@ public final class RayTracer implements RaytracerExamples {
         }
     }
 
-    private void trace(Ray r, double intensity, PMC2<Vec3, Double> block, int maxdepth) {
+    private void trace(Ray r, double intensity, PMC2<Vec3, Double> block,
+            int maxdepth) {
         if (intensity < MIN_INTENSITY || maxdepth < 0)
             return;
         Vec3 hit = null;
@@ -184,9 +158,11 @@ public final class RayTracer implements RaytracerExamples {
                 Vec3 reflect = surface.reflect(r.direction, normal);
                 Vec3 refract = surface.refract(r.direction, normal);
                 double trans = surface.transCoeff(r.direction, normal, refract);
-                trace(new Ray(hit, reflect), intensity * (1 - trans), block, maxdepth - 1);
+                trace(new Ray(hit, reflect), intensity * (1 - trans), block,
+                        maxdepth - 1);
                 if (null != refract) {
-                    trace(new Ray(hit, refract), intensity * trans, block, maxdepth - 1);
+                    trace(new Ray(hit, refract), intensity * trans, block,
+                            maxdepth - 1);
                 }
             }
         }
@@ -196,8 +172,10 @@ public final class RayTracer implements RaytracerExamples {
      * Running average on the lines and rows of a.
      */
     private void smoothScreen() {
-        final int width = (int) Math.round(Math.sqrt(XS * XS * 100.0d / rays));
-        System.out.println("Smooth factor " + width + " becayse of " + rays + " rays.");
+        final int width = (int) Math.round(Math.sqrt(XS * XS * 1000.0d / rays));
+        System.out.println("Smooth factor " + width + " becayse of " + rays
+                + " rays.");
+        if (1 >= width) return;
         int x = 0;
         int y = 0;
         try {
@@ -248,6 +226,7 @@ public final class RayTracer implements RaytracerExamples {
 
     abstract class ParmThread extends Thread {
         int i;
+
         int j;
     }
 
@@ -298,6 +277,33 @@ public final class RayTracer implements RaytracerExamples {
         barrier.await();
         en = System.currentTimeMillis();
         System.out.println("Snapshot time " + 0.001 * (en - beg));
+    }
+
+    public double[] render(String[] ellipsoids, String[] thelights) {
+        try {
+            for (String el : ellipsoids) {
+                Ellipsoid e = new Ellipsoid(el);
+                objects.add(e);
+            }
+            for (String li : thelights) {
+                Vec3 l = new Vec3(li);
+                this.lights.add(l);
+            }
+            doRendering();
+            if (null != exception)
+                exception.printStackTrace();
+            double[] res = new double[XS * YS];
+            int i = 0;
+            for (int x = 0; x < XS; ++x) {
+                for (int y = 0; y < YS; ++y) {
+                    res[i++] = c[x][y];
+                }
+            }
+            return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
 }

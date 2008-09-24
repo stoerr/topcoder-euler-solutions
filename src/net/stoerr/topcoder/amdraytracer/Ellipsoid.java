@@ -11,6 +11,8 @@ public final class Ellipsoid implements Hitable {
     public final Vec3 center;
 
     public final Vec3 axes;
+    
+    private final double max;
 
     public Ellipsoid(Vec3 center, Vec3 axes) {
         this.center = center;
@@ -18,6 +20,7 @@ public final class Ellipsoid implements Hitable {
         assert axes.x > 0;
         assert axes.y > 0;
         assert axes.z > 0;
+        max = Math.max(Math.max(axes.x, axes.y),axes.z);
     }
 
     /**
@@ -37,6 +40,7 @@ public final class Ellipsoid implements Hitable {
         assert axes.x > 0;
         assert axes.y > 0;
         assert axes.z > 0;
+        max = Math.max(Math.max(axes.x, axes.y),axes.z);
     }
 
     @Override
@@ -53,6 +57,7 @@ public final class Ellipsoid implements Hitable {
     public Vec3 hitpoint(Ray ray) {
         Vec3 o = ray.origin.subtract(center);
         Vec3 d = ray.direction;
+            
         double a = d.x * d.x / (axes.x * axes.x) + d.y * d.y / (axes.y * axes.y) + d.z * d.z / (axes.z * axes.z);
         double b = 2 * (d.x * o.x / (axes.x * axes.x) + d.y * o.y / (axes.y * axes.y) + d.z * o.z / (axes.z * axes.z));
         double c = o.x * o.x / (axes.x * axes.x) + o.y * o.y / (axes.y * axes.y) + o.z * o.z / (axes.z * axes.z) - 1;
