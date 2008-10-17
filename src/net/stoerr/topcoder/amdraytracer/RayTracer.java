@@ -11,9 +11,9 @@ public final class RayTracer implements RaytracerExamples {
     public static final int XS = 1000;
     public static final int YS = 1000;
 
-    final int NUM_THREADS = 2;
+    final int NUM_THREADS = 1;
 
-    final long MAXCALCTIME = 1000 * 600;
+    final long MAXCALCTIME = 1000 * 60;
     final long MAXRAYS = 1000*XS*YS;
 
 
@@ -49,10 +49,20 @@ public final class RayTracer implements RaytracerExamples {
     }
 
     public RayTracer(double a[][], double[][] c) {
-        /* lights.add(new Vec3(500, 500, 500));
-        objects.add(new Ellipsoid(new Vec3(500, 500, 200), new Vec3(100, 200,
-                300))); */
-        lights.addAll(EX0_LIGHTS); objects.addAll(EX0_OBJS);
+        lights.add(new Vec3(0, 0, 500));
+        lights.add(new Vec3(0, 1000, 500));
+        lights.add(new Vec3(1000, 0, 500));
+        lights.add(new Vec3(1000, 1000, 500));
+        /*
+         * objects.add(new Ellipsoid(new Vec3(500, 500, 200), new Vec3(100, 200,
+         * 300)));
+         */
+        // lights.addAll(EX0_LIGHTS); objects.addAll(EX0_OBJS);
+        for (int i = 0; i < 100; ++i) {
+            objects.add(new Ellipsoid(new Vec3(1000 * Math.random(), 1000 * Math.random(), 200 * Math.random()),
+                    new Vec3(
+                    50, 50, 50)));
+        }
         this.a = a;
         this.c = c;
     }
