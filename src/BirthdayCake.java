@@ -14,41 +14,7 @@ public class BirthdayCake {
         return ct;
     }
 
-    public int howManyFriends(String[] af, String[] fd, int K) {
-        Map<String, Integer> m = new HashMap();
-        int curr = 0;
-        for(int i = 0; i < af.length; ++i) {
-            m.put(af[i], curr++);
-        }
-        List<Long> v = new ArrayList();
-        for(int i =0; i< fd.length; ++i) {
-            long mask = 0;
-            String[] sp = fd[i].split(" ");
-            for(String st : sp) {
-                Integer val = m.get(st);
-                if (null != val) {
-                    mask |= 1 << val;
-                }
-            }
-            v.add(mask);
-        }
-        int n = fd.length;
-        int res = 0;
-        for (int i = 0; i < (1<<n); ++i) {
-            long currmask = 0;
-            for (int j = 0; j < n; j++) {
-                if(0 == (i&(1<<j))) {
-                    currmask |= v.get(j);
-                }
-            }
-            if (curr - numbits(currmask) >= K) {
-                res = Math.max(res, numbits(i));
-            }
-        }
-        return res;
-    }
-    
-    public int howManyFriendsM(String[] availableFruits,
+    public int howManyFriends(String[] availableFruits,
             String[] friendsDislikings, int K) {
         String[] selection = new String[K];
         Set<String>[] dislikings = new Set[friendsDislikings.length];
@@ -159,12 +125,11 @@ public class BirthdayCake {
         int p3;
 
         // ----- test 2 -----
-        /*
         p0 = new String[] {"vqayzaldyi", "qlgsukdmfe", "baewytlvfh", "eeqrrjsie", "olfnklc", "itfxtfgykb", "ntlhit", "korzk", "rbamtmo", "docur", "hllpve", "jdplceqcc", "mankgl", "fwthcv", "jdodyv", "zfifjpc", "wydhboirp", "duracx", "lcdwaalr", "adiffpyvx", "ctfxai", "jablas", "lcqkulmvb", "wcabop", "ajsynuc", "cqmaqngsfs", "xkeoczhzd", "pxomu", "dyygo", "jkmagcj", "ijtfgc", "mjrdfcxhpu", "xdfkjd", "torelq", "wdibtt", "dsqvv", "lwlyzv", "lynygya", "auqviptooe", "ojfhhv", "uuukzppfb"};
         p1 = new String[] {"mankgl ntlhit auqviptooe itfxtfgykb jablas", "mankgl hllpve olfnklc vqayzaldyi docur fwthcv", "eeqrrjsie wdibtt auqviptooe jdplceqcc ctfxai", "wdibtt dsqvv dyygo wcabop adiffpyvx xdfkjd zfifjpc", "ntlhit dyygo baewytlvfh ojfhhv jkmagcj korzk", "jdplceqcc ajsynuc uuukzppfb jdodyv mankgl ntlhit", "pxomu baewytlvfh wdibtt vqayzaldyi wydhboirp", "mjrdfcxhpu cqmaqngsfs olfnklc docur ctfxai jablas", "xkeoczhzd ctfxai rbamtmo ojfhhv lcqkulmvb", "jablas lcqkulmvb auqviptooe lwlyzv zfifjpc dsqvv", "docur hllpve dsqvv itfxtfgykb vqayzaldyi", "uuukzppfb hllpve ojfhhv dyygo xdfkjd ctfxai", "torelq baewytlvfh eeqrrjsie jablas wydhboirp", "itfxtfgykb olfnklc jdplceqcc mjrdfcxhpu auqviptooe", "jablas duracx fwthcv olfnklc lcqkulmvb wdibtt", "dsqvv vqayzaldyi wydhboirp itfxtfgykb hllpve korzk", "lcqkulmvb eeqrrjsie ntlhit dsqvv itfxtfgykb hllpve", "xkeoczhzd docur adiffpyvx ijtfgc mjrdfcxhpu fwthcv", "uuukzppfb ctfxai mankgl rbamtmo jdplceqcc docur", "mjrdfcxhpu jablas korzk baewytlvfh ijtfgc torelq"};
         p2 = 20;
         p3 = 1;
-        all_right = KawigiEdit_RunTest(2, p0, p1, p2, true, p3) && all_right; */
+        all_right = KawigiEdit_RunTest(2, p0, p1, p2, true, p3) && all_right;
         // ------------------
 
         // ----- test 0 -----
