@@ -120,35 +120,44 @@ public class P001b024 extends Assert {
         for (int a = 1; a < 1000; ++a)
             for (int b = a + 1; b < 1000; ++b) {
                 int c = 1000 - a - b;
-                if (c*c==a*a+b*b) {
-                    assertEquals(200,a);
-                    assertEquals(375,b);
-                    assertEquals(425,c);
-                    assertEquals(31875000,a*b*c);
+                if (c * c == a * a + b * b) {
+                    assertEquals(200, a);
+                    assertEquals(375, b);
+                    assertEquals(425, c);
+                    assertEquals(31875000, a * b * c);
                 }
             }
     }
-    
+
     @Test
     public void testP010() {
-        int max=2000000;
+        int max = 2000000;
         List<Integer> primes = erathostenes(max);
-        long sum=0;
-        for (Integer p : primes) sum +=p;
-        assertEquals(142913828922L,sum);
+        long sum = 0;
+        for (Integer p : primes)
+            sum += p;
+        assertEquals(142913828922L, sum);
     }
-    
-    @Test public void testP012() {
-        int i=1;
-        int divs=0;
-        int n=0;
-        while(divs<=30) {
+
+    @Test
+    public void testP012() {
+        int i = 1;
+        int divs = 0;
+        int n = 0;
+        while (divs <= 500) {
             ++i;
-            n = i*(i+1)/2;
-            divs = PrimeUtils.countDivisors(n);
-            int divs2 = PrimeUtils.countDivisors(i)*PrimeUtils.countDivisors(i+1)/2;
-            System.out.println(n + "\t" + divs + "\t" + divs2);
+            n = i * (i + 1) / 2;
+            // divs = PrimeUtils.countDivisors(n);
+            if (0 == i % 2) {
+                divs = PrimeUtils.countDivisors(i / 2)
+                        * PrimeUtils.countDivisors(i + 1);
+            } else {
+                divs = PrimeUtils.countDivisors(i)
+                        * PrimeUtils.countDivisors((i + 1) / 2);
+            }
+            // System.out.println(n + "\t" + divs);
         }
-        System.out.println(n + "\t" + divs);
+        assertEquals(76576500, n);
+        assertEquals(576, divs);
     }
 }

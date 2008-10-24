@@ -73,19 +73,30 @@ public class PrimeUtils {
         if (number < 0) return divisors(number);
         if (number==0) return Collections.singletonList(1L);
         List<Long> res = new ArrayList<Long>();
-        for (long i=1; i<=number; ++i) {
-            if (0 == number%i) res.add(i);
+        long i;
+        for (i=1; i*i<number; ++i) {
+            if (0 == number%i) {
+                res.add(i);
+                res.add(number/i);
+            }
         }
+        if (i*i==number) res.add(i);
+        Collections.sort(res);
         return res;
     }
     
+    /**
+     * Number of divisors. May be speeded up by factorung.
+     */
     public static int countDivisors(long number) {
         if (number < 0) return countDivisors(number);
         if (number==0) return 1;
         int count=0;
-        for (long i=1; i<=number; ++i) {
-            if (0 == number%i) ++count;
+        long i;
+        for (i=1; i*i < number; ++i) {
+            if (0 == number%i) count +=2;
         }
+        if (i*i == number) ++count;
         return count;
     }
 }
