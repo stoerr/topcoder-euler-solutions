@@ -35,5 +35,13 @@ public class Combinatorics {
         }
         return res;
     }
+    
+    public static BigInteger facB(long n) {
+        BigInteger res = new BigInteger("1");
+        for (int i=2; i<n; ++i) {
+            res = res.multiply(new BigInteger(""+i));
+        }
+        return res;
+    }
 
 }

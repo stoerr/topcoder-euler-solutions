@@ -10,4 +10,10 @@ public class CollectionUtils {
         return res;
     }
     
+    public static long add(List<Long> l) {
+        long res=0;
+        for (Long v : l) res+=v;
+        return res;
+    }
+    
 }
