@@ -10,5 +10,16 @@ public class TestNumerics extends TestCase {
         Function f = compose(NEGATE, ONE);
         assertEquals(-1.0, f.call(Value.BOTTOM).get());
     }
-    
+
+    public void testPlus() {
+        Function f = compose(PLUS, cn(ONE, ONE));
+        assertEquals(2.0, f.call(Value.BOTTOM).get());
+    }
+
+    public void testVarious() {
+        Function dup = cn(IDENTITY, IDENTITY);
+        // Function f = compose(TIMES, compose(dup, compose(PLUS, cn(ONE, ONE))));
+        Function f = cn(ONE, ONE).c(PLUS).c(dup).c(TIMES);
+        assertEquals(4.0, f.call(Value.BOTTOM).get());
+    }
 }

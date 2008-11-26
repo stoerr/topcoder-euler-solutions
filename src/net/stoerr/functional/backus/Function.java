@@ -9,4 +9,7 @@ public interface Function {
 
     Value call(Value arg);
     
+    /** Composition: f is executed on the result of this. Reverse to {@link Combinators#compose(Function, Function)}! */
+    Function c(Function f);
+    
 }

@@ -6,7 +6,7 @@ package net.stoerr.functional.backus;
  * @author hps
  * @since 26.11.2008
  */
-public abstract class LazyFunction implements Function {
+public abstract class LazyFunction extends AbstractFunction {
 
     public final Value call(final Value arg) {
         return new LazyValue() {

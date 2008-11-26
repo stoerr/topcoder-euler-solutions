@@ -19,6 +19,10 @@ public final class ImmediateList implements ListObject {
             values.add(new ImmediateValue(obj));
         }
     }
+    
+    public ImmediateList(List<Value> values) {
+        this.values = values;
+    }
 
     public Value get(int i) {
         return values.get(i);

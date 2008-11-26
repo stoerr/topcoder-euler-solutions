@@ -61,14 +61,16 @@ public class Numerics {
         }
     };
 
-    public static final Function ZERO = new Function() {
+    public static final Function ZERO = new AbstractFunction() {
         public Value call(Value arg) {
             return new ImmediateValue((double) 0);
         }
     };
-    public static final Function ONE = new Function() {
+
+    public static final Function ONE = new AbstractFunction() {
         public Value call(Value arg) {
             return new ImmediateValue((double) 1);
         }
     };
+
 }
