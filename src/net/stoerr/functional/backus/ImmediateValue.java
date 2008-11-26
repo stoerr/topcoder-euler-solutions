@@ -5,7 +5,7 @@ package net.stoerr.functional.backus;
  * @author hps
  * @since 26.11.2008
  */
-public final class ImmediateValue implements Value {
+public final class ImmediateValue extends AbstractValue {
 
     private final Object val;
 
@@ -16,4 +16,5 @@ public final class ImmediateValue implements Value {
     public Object get() {
         return val;
     }
+    
 }

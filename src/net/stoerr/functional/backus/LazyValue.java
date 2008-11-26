@@ -6,7 +6,7 @@ package net.stoerr.functional.backus;
  * @author hps
  * @since 26.11.2008
  */
-public abstract class LazyValue implements Value {
+public abstract class LazyValue extends AbstractValue {
 
     private volatile Value val = null;
 

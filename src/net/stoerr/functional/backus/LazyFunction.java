@@ -12,11 +12,11 @@ public abstract class LazyFunction implements Function {
         return new LazyValue() {
             @Override
             protected Object compute() {
-                return LazyFunction.this.compute(arg.get());
+                return LazyFunction.this.compute(arg);
             }
         };
     }
 
     /** The actual computation. */
-    protected abstract Object compute(Object arg);
+    protected abstract Object compute(Value arg);
 }

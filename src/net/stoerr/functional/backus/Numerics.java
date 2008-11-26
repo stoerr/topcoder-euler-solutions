@@ -10,49 +10,54 @@ public class Numerics {
 
     public static final Function PLUS = new LazyFunction() {
         @Override
-        protected Object compute(Object arg) {
-            ListObject vals = (ListObject) arg;
+        protected Object compute(Value arg) {
+            ListObject vals = arg.asList();
             double res = ((Number) vals.get(0).get()).doubleValue();
             for (int i = 1; i < vals.size(); ++i) {
                 double n = ((Number) vals.get(0).get()).doubleValue();
                 res = res + n;
             }
-            return new ImmediateValue(res);
+            return res;
         }
     };
 
     public static final Function MINUS = new LazyFunction() {
         @Override
-        protected Object compute(Object arg) {
-            ListObject vals = (ListObject) arg;
+        protected Object compute(Value arg) {
+            ListObject vals = arg.asList();
             if (2 != vals.size())
                 throw new BottomException("expected 2: " + vals.size());
-            return new ImmediateValue(((Number) vals.get(0).get()).doubleValue()
-                    - ((Number) vals.get(1).get()).doubleValue());
+            return ((Number) vals.get(0).get()).doubleValue() - ((Number) vals.get(1).get()).doubleValue();
         }
     };
 
     public static final Function TIMES = new LazyFunction() {
         @Override
-        protected Object compute(Object arg) {
-            ListObject vals = (ListObject) arg;
+        protected Object compute(Value arg) {
+            ListObject vals = arg.asList();
             double res = ((Number) vals.get(0).get()).doubleValue();
             for (int i = 1; i < vals.size(); ++i) {
                 double n = ((Number) vals.get(0).get()).doubleValue();
                 res = res * n;
             }
-            return new ImmediateValue(res);
+            return res;
         }
     };
 
     public static final Function DIVIDE = new LazyFunction() {
         @Override
-        protected Object compute(Object arg) {
-            ListObject vals = (ListObject) arg;
+        protected Object compute(Value arg) {
+            ListObject vals = arg.asList();
             if (2 != vals.size())
                 throw new BottomException("expected 2: " + vals.size());
-            return new ImmediateValue(((Number) vals.get(0).get()).doubleValue()
-                    - ((Number) vals.get(1).get()).doubleValue());
+            return ((Number) vals.get(0).get()).doubleValue() - ((Number) vals.get(1).get()).doubleValue();
+        }
+    };
+
+    public static final Function NEGATE = new LazyFunction() {
+        @Override
+        protected Object compute(Value arg) {
+            return -((Number) arg.get()).doubleValue();
         }
     };
 
