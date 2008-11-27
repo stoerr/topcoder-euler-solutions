@@ -14,6 +14,7 @@ public class TestLists extends TestCase {
 
     public void testAppend() {
         Function l = L(1,2,3);
+        assertEquals("<1, 2, 3>", l.call(Value.BOTTOM).asList().toString());
         Function tst = cn(l,l.c(TAIL)).c(APPEND);
         assertEquals("<1, 2, 3, 2, 3>", tst.call(Value.BOTTOM).asList().toString());
     }

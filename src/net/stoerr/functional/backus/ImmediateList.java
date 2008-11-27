@@ -13,10 +13,10 @@ public final class ImmediateList extends AbstractList {
 
     private final List<Value> values;
 
-    public ImmediateList(Object... objects) {
+    public ImmediateList(Value... objects) {
         values = new ArrayList<Value>();
-        for (Object obj : objects) {
-            values.add(new ImmediateValue(obj));
+        for (Value obj : objects) {
+            values.add(obj);
         }
     }
     

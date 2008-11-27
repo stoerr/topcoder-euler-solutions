@@ -1,5 +1,6 @@
 package net.stoerr.functional.backus;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,9 +50,18 @@ public class Lists {
     public static final Function TAIL = tail(1);
 
     /** A immediate list value */
-    public static Function L(Object... vals) {
-        return Combinators.constant(new ImmediateList(vals));
+    public static Value V(Object... vals) {
+        List<Value> values = new ArrayList<Value>();
+        for (Object val : vals) values.add(new ImmediateValue(val));
+        return new ImmediateValue(new ImmediateList(values));
     }
+    
+    /** A immediate list function */
+    public static Function L(Object... vals) {
+        List<Value> values = new ArrayList<Value>();
+        for (Object val : vals) values.add(new ImmediateValue(val));
+        return Combinators.constant(new ImmediateList(values));
+    }    
 
     public static final Function APPEND = new LazyFunction() {
         @Override
