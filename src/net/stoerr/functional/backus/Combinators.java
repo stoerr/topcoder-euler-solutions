@@ -51,6 +51,7 @@ public class Combinators {
                             }
                         };
                     }
+
                     public int size() {
                         return functions.length;
                     }
@@ -59,4 +60,31 @@ public class Combinators {
         };
     }
 
+    /**
+     * Applies f to its own result - makes only sense for recursively
+     * constructed lists. The arguments are ignored.
+     */
+    public static Function fixpoint(final Function f) {
+        return new AbstractFunction() {
+            public Value call(Value ignored) {
+                return new LazyValue() {
+                    @Override
+                    protected Object compute() {
+                        return f.call(this).get();
+                    }
+                };
+            }
+        };
+    }
+    
+    /** Binds the first argument to a given value. */
+    public static Function bindFirst(final Function f, final Value firstArg) {
+        return new LazyFunction() {
+            @Override
+            protected Object compute(final Value arg) {
+                ListObject l = new ImmediateList(firstArg, arg);
+                return f.call(new ImmediateValue(l)).get();
+            }
+        };        
+    }
 }

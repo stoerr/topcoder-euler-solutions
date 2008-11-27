@@ -17,4 +17,8 @@ public final class ImmediateValue extends AbstractValue {
         return val;
     }
     
+    @Override
+    public String toString() {
+        return String.valueOf(get());
+    }
 }

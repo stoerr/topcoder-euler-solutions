@@ -26,4 +26,12 @@ public abstract class LazyValue extends AbstractValue {
 
     /** The lazily carried out computation; called once. */
     protected abstract Object compute();
+    
+    @Override
+    public String toString() {
+        if (null == val) {
+            return "(lazy)";
+        }
+        return String.valueOf(val); 
+    }
 }

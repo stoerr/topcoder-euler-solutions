@@ -12,10 +12,10 @@ import static net.stoerr.functional.backus.Lists.*;
  */
 public class TestLists extends TestCase {
 
-    public void testNth() {
-    }
-
-    public void testTail() {
+    public void testAppend() {
+        Function l = L(1,2,3);
+        Function tst = cn(l,l.c(TAIL)).c(APPEND);
+        assertEquals("<1, 2, 3, 2, 3>", tst.call(Value.BOTTOM).asList().toString());
     }
 
 }
