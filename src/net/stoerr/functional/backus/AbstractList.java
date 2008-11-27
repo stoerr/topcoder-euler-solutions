@@ -18,7 +18,9 @@ public abstract class AbstractList implements ListObject {
             }
 
             public Value next() {
-                return get(nextI++);
+                final Value value = get(nextI);
+                nextI += 1;
+                return value;
             }
 
             public void remove() {

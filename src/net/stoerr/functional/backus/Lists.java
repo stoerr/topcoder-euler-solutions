@@ -78,6 +78,12 @@ public class Lists {
                 public Value get(int i) {
                     return col.get(i);
                 }
+                
+                @Override
+                public boolean has(int i) {
+                    // TODO Auto-generated method stub
+                    return super.has(i);
+                }
 
                 public int size() {
                     return col.size(); // TODO calculate directly; this does not
