@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author hps
  * @since 26.11.2008
  */
-public abstract class LazyList implements ListObject {
+public abstract class LazyList extends AbstractList {
 
     private Map<Integer, Value> values = new ConcurrentHashMap<Integer, Value>();
 

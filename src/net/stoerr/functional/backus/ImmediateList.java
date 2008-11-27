@@ -9,7 +9,7 @@ import java.util.List;
  * @author hps
  * @since 26.11.2008
  */
-public final class ImmediateList implements ListObject {
+public final class ImmediateList extends AbstractList {
 
     private final List<Value> values;
 
