@@ -7,22 +7,8 @@ package net.stoerr.functional.backus;
  */
 public abstract class AbstractFunction implements Function {
     
-    private final String name;
-    
-    public AbstractFunction() {
-        name = super.toString();
-    }
-    
-    public AbstractFunction(String name) {
-        this.name = name + super.toString();
-    }
-
     public Function c(Function f) {
         return Combinators.compose(f, this);
     }
-    
-    @Override
-    public String toString() {
-        return name;
-    }
+
 }

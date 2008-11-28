@@ -8,7 +8,9 @@ package net.stoerr.functional.backus;
  */
 public class Numerics {
 
-    public static final Function PLUS = new LazyFunction() {
+    public static final Function PLUS = new PlusDoubleFunction();
+
+    private static final class PlusDoubleFunction extends LazyFunction {
         @Override
         protected Object compute(Value arg) {
             ListObject vals = arg.asList();

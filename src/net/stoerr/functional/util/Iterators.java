@@ -90,8 +90,6 @@ public final class Iterators {
         public boolean has(int index);
     }
 
-    private static abstract class AbstractLazyList<T> extends AbstractList<T> implements DelayedList<T> {}
-
     /**
      * Makes a lazy collection from the iterator - everything is read as needed. Probably threadsafe.<br>
      * Warning: size() reads everything from the iterator - not lazy!<br>
@@ -99,7 +97,7 @@ public final class Iterators {
      * values anyway.
      */
     public static <T> DelayedList<T> delayedList(final Iterator<T> it) {
-        return new AbstractLazyList<T>() {
+        final class DelayedIteratorList extends AbstractList<T> implements DelayedList<T> {
             private volatile int read = 0; // is Integer.MAX_VALUE iff
             // everything was read from it.
             private final Map<Integer, T> values = new ConcurrentHashMap<Integer, T>();
@@ -144,7 +142,8 @@ public final class Iterators {
                 if (Integer.MAX_VALUE == read) return index < size();
                 return it.hasNext();
             }
-        };
+        }
+        return new DelayedIteratorList();
     }
 
 }

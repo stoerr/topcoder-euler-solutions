@@ -17,19 +17,20 @@ import net.stoerr.functional.util.Iterators.DelayedList;
 public class Lists {
 
     public static Function nth(final int l) {
-        return new LazyFunction() {
+        final class NthFunction extends LazyFunction {
             @Override
             protected Object compute(Value arg) {
                 return arg.asList().get(l);
             }
-        };
+        }
+        return new NthFunction();
     }
 
     public static final Function FIRST = nth(0);
     public static final Function SECOND = nth(1);
 
     public static final Function tail(final int l) {
-        return new LazyFunction() {
+        final class TailFunction extends LazyFunction {
             @Override
             protected Object compute(final Value arg) {
                 return new AbstractList() {
@@ -45,7 +46,8 @@ public class Lists {
                     }
                 };
             }
-        };
+        }
+        return new TailFunction();
     }
 
     public static final Function TAIL = tail(1);
@@ -66,7 +68,9 @@ public class Lists {
         return Combinators.constant(new ImmediateList(values));
     }
 
-    public static final Function APPEND = new LazyFunction() {
+    public static final Function APPEND = new AppendFunction();
+
+    private static final class AppendFunction extends LazyFunction {
         @Override
         protected Object compute(final Value arg) {
             Iterator<Value> argIt = arg.asList().asIterator();
@@ -77,7 +81,7 @@ public class Lists {
             });
             final Iterator<Value> combinedit = Iterators.concat(superit);
             final DelayedList<Value> col = Iterators.delayedList(combinedit);
-            return new AbstractList() {
+            final class AppendedList extends AbstractList {
                 public Value get(int i) {
                     return col.get(i);
                 }
@@ -91,11 +95,14 @@ public class Lists {
                     return col.size(); // TODO calculate directly; this does not
                     // allow streams.
                 }
-            };
+            }
+            return new AppendedList();
         }
-    };
+    }
 
-    public static final Function TRANSPOSE = new LazyFunction() {
+    public static final Function TRANSPOSE = new TransposeFunction();
+
+    private static final class TransposeFunction extends LazyFunction {
         @Override
         protected Object compute(final Value arg) {
             final ListObject list = arg.asList();
@@ -120,5 +127,5 @@ public class Lists {
                 }
             };
         }
-    };
+    }
 }

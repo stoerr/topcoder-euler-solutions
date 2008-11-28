@@ -7,6 +7,15 @@ import static net.stoerr.functional.backus.Lists.*;
 
 public class TestCombinators extends TestCase {
 
+    public final void donttestFibonacci() {
+        Function app11 = bindFirst(APPEND, V(1,1));
+        Function fibonacci = app11.c(cn(IDENTITY, IDENTITY)).c(TRANSPOSE).c(apply(PLUS));
+        Function tst = fixpoint(fibonacci);
+        final ListObject res = tst.call(Value.BOTTOM).asList();
+        // final ListObject res = fibonacci.c(UNLAZY).call(V(3,5)).asList();
+        assertEquals("", res.toString());
+    }
+    
     public final void testFixpoint() {
         Function app12 = bindFirst(APPEND, V(1,2));
         // assertEquals("<1, 2, 5, 8>", app12.call(V(5,8)).asList().toString());
@@ -21,12 +30,4 @@ public class TestCombinators extends TestCase {
         assertEquals("<3.0, 12.0>", res.toString());
     }
     
-    public final void testFibonacci() {
-        Function app11 = bindFirst(APPEND, V(1,1));
-        Function fibonacci = app11.c(cn(IDENTITY, TAIL).c(TRANSPOSE).c(apply(PLUS)));
-        Function tst = fixpoint(fibonacci);
-        // final ListObject res = c(fibonacci).call(Value.BOTTOM).asList();
-        final ListObject res = fibonacci.c(UNLAZY).call(V(3,5)).asList();
-        assertEquals("", res.toString());
-    }
 }

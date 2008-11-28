@@ -20,17 +20,19 @@ public class Combinators {
         };
     }
 
-    public static final Function IDENTITY = new AbstractFunction("IDENTITY") {
+    public static final Function IDENTITY = new IdentityFunction();
+
+    private static final class IdentityFunction extends AbstractFunction {
         public Value call(Value arg) {
             return arg;
         }
-    };
+    }
 
     /**
      * Completely evaluates lazy stuff: calls a get in every list recursively
      * until item 10.
      */
-    public static final Function UNLAZY = new AbstractFunction("UNLAZY") {
+    public static final Function UNLAZY = new AbstractFunction() {
         public Value call(Value arg) {
             unlazy(arg);
             return arg;
@@ -50,18 +52,19 @@ public class Combinators {
 
     /** Functional composition f:g:x (that is f(g(x)). */
     public static Function compose(final Function f, final Function g) {
-        return new LazyFunction("compose") {
+        final class ComposeFunction extends LazyFunction {
             @Override
             protected Object compute(Value arg) {
                 Value gval = g.call(arg);
                 return f.call(gval).get();
             }
-        };
+        }
+        return new ComposeFunction();
     }
 
     /** Construction [f1, f2, f3]. */
     public static Function cn(final Function... functions) {
-        return new LazyFunction("cn") {
+        final class ConstructorFunction extends LazyFunction {
             @Override
             protected Object compute(final Value arg) {
                 return new LazyList() {
@@ -80,7 +83,8 @@ public class Combinators {
                     }
                 };
             }
-        };
+        }
+        return new ConstructorFunction();
     }
 
     /**
