@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.stoerr.functional.util.F;
 import net.stoerr.functional.util.Iterators;
+import net.stoerr.functional.util.Iterators.LazyList;
 
 /**
  * Functions related to {@link ListObject}s.
@@ -73,7 +74,7 @@ public class Lists {
                 }
             });
             final Iterator<Value> combinedit = Iterators.concat(superit);
-            final List<Value> col = Iterators.lazyCollection(combinedit);
+            final LazyList<Value> col = Iterators.lazyList(combinedit);
             return new AbstractList() {
                 public Value get(int i) {
                     return col.get(i);
@@ -81,8 +82,7 @@ public class Lists {
                 
                 @Override
                 public boolean has(int i) {
-                    // TODO Auto-generated method stub
-                    return super.has(i);
+                    return col.has(i);
                 }
 
                 public int size() {

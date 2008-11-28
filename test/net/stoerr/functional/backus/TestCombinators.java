@@ -12,9 +12,6 @@ public class TestCombinators extends TestCase {
         // assertEquals("<1, 2, 5, 8>", app12.call(V(5,8)).asList().toString());
         Function tst = fixpoint(app12);
         final ListObject res = tst.call(Value.BOTTOM).asList();
-        // assertEquals("", res.toString());
-        for (int i=0; i<10; ++i) {
-            System.out.println(res.get(i));
-        }
+        assertEquals("<1, 2, 1, 2, 1, 2, 1, 2, 1, 2, ...>", res.toString());
     }
 }

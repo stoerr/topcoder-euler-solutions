@@ -5,7 +5,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Helperclass for {@link Iterator}s.
- * 
  * @author hps
  * @since 27.11.2008
  */
@@ -32,16 +31,14 @@ public final class Iterators {
     }
 
     /**
-     * Iterator that yields all elements from all iterators superit returns, in
-     * order. Not threadsafe.
+     * Iterator that yields all elements from all iterators superit returns, in order. Not threadsafe.
      */
     public static <T> Iterator<T> concat(final Iterator<Iterator<T>> superit) {
         return new Iterator<T>() {
             private Iterator<T> current = null;
 
             /**
-             * getCurrent.hasNext() is always true iff not null; when null
-             * everything is exhausted.
+             * getCurrent.hasNext() is always true iff not null; when null everything is exhausted.
              */
             private Iterator<T> getCurrent() {
                 while (null == current && superit.hasNext()) {
@@ -59,8 +56,7 @@ public final class Iterators {
 
             public T next() {
                 T val = getCurrent().next();
-                if (!current.hasNext())
-                    current = null;
+                if (!current.hasNext()) current = null;
                 return val;
             }
 
@@ -88,18 +84,25 @@ public final class Iterators {
         return res;
     }
 
+    /** A list that is lazily calculated */
+    public static interface LazyList<T> extends List<T> {
+        /** Tells if there is a element at index index; the element is not yet calculated. */
+        public boolean has(int index);
+    }
+
+    private static abstract class AbstractLazyList<T> extends AbstractList<T> implements LazyList<T> {}
+
     /**
-     * Makes a lazy collection from the iterator - everything is read as needed.
-     * Probably threadsafe.<br>
+     * Makes a lazy collection from the iterator - everything is read as needed. Probably threadsafe.<br>
      * Warning: size() reads everything from the iterator - not lazy!<br>
-     * Caution: Maybe size() returns too small value if any of it.next() is
-     * null.
+     * Caution: Maybe size() returns too small value if any of it.next() is null. We probably have trouble with null
+     * values anyway.
      */
-    public static <T> List<T> lazyCollection(final Iterator<T> it) {
-        return new AbstractList<T>() {
+    public static <T> LazyList<T> lazyList(final Iterator<T> it) {
+        return new AbstractLazyList<T>() {
             private volatile int read = 0; // is Integer.MAX_VALUE iff
             // everything was read from it.
-            private Map<Integer, T> values = new ConcurrentHashMap<Integer, T>();
+            private final Map<Integer, T> values = new ConcurrentHashMap<Integer, T>();
 
             @Override
             public T get(int index) {
@@ -112,8 +115,7 @@ public final class Iterators {
             }
 
             /**
-             * Reads from it up to the index' element. Postcondition:
-             * read>index.
+             * Reads from it up to the index' element. Postcondition: read>index.
              */
             private synchronized void readTo(int index) {
                 while (read <= index) {
@@ -130,9 +132,17 @@ public final class Iterators {
 
             @Override
             public int size() {
-                if (read < Integer.MAX_VALUE)
-                    readTo(Integer.MAX_VALUE);
+                if (read < Integer.MAX_VALUE) readTo(Integer.MAX_VALUE);
                 return values.size();
+            }
+
+            public boolean has(int index) {
+                if (Integer.MAX_VALUE == read) return index < size();
+                if (read > index) return true;
+                if (read == index) return it.hasNext();
+                readTo(index - 1);
+                if (Integer.MAX_VALUE == read) return index < size();
+                return it.hasNext();
             }
         };
     }
