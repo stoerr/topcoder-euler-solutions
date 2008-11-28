@@ -19,5 +19,9 @@ public abstract class AbstractValue implements Value {
     public String asString() {
         return (String) get();
     }
+    
+    public boolean asBoolean() {
+        return (Boolean) get();
+    }
 
 }

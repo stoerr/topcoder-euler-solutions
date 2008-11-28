@@ -22,6 +22,9 @@ public interface Value {
 
     /** Gets as String value. */
     String asString();
+    
+    /** Gets as boolean value. */
+    boolean asBoolean();
 
     Value BOTTOM = new AbstractValue() {
         public Object get() {

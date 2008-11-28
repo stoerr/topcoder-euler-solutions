@@ -6,7 +6,7 @@ import java.util.List;
 
 import net.stoerr.functional.util.F;
 import net.stoerr.functional.util.Iterators;
-import net.stoerr.functional.util.Iterators.LazyList;
+import net.stoerr.functional.util.Iterators.DelayedList;
 
 /**
  * Functions related to {@link ListObject}s.
@@ -53,16 +53,18 @@ public class Lists {
     /** A immediate list value */
     public static Value V(Object... vals) {
         List<Value> values = new ArrayList<Value>();
-        for (Object val : vals) values.add(new ImmediateValue(val));
+        for (Object val : vals)
+            values.add(new ImmediateValue(val));
         return new ImmediateValue(new ImmediateList(values));
     }
-    
+
     /** A immediate list function */
     public static Function L(Object... vals) {
         List<Value> values = new ArrayList<Value>();
-        for (Object val : vals) values.add(new ImmediateValue(val));
+        for (Object val : vals)
+            values.add(new ImmediateValue(val));
         return Combinators.constant(new ImmediateList(values));
-    }    
+    }
 
     public static final Function APPEND = new LazyFunction() {
         @Override
@@ -74,12 +76,12 @@ public class Lists {
                 }
             });
             final Iterator<Value> combinedit = Iterators.concat(superit);
-            final LazyList<Value> col = Iterators.lazyList(combinedit);
+            final DelayedList<Value> col = Iterators.delayedList(combinedit);
             return new AbstractList() {
                 public Value get(int i) {
                     return col.get(i);
                 }
-                
+
                 @Override
                 public boolean has(int i) {
                     return col.has(i);
@@ -88,6 +90,33 @@ public class Lists {
                 public int size() {
                     return col.size(); // TODO calculate directly; this does not
                     // allow streams.
+                }
+            };
+        }
+    };
+
+    public static final Function TRANSPOSE = new LazyFunction() {
+        @Override
+        protected Object compute(final Value arg) {
+            final ListObject list = arg.asList();
+            return new LazyList() {
+                @Override
+                protected Value value(final int i) {
+                    return new ImmediateValue(new LazyList() {
+                        @Override
+                        protected Value value(int j) {
+                            return list.get(j).asList().get(i);
+                        }
+
+                        public int size() {
+                            return list.size();
+                        }
+                    });
+                }
+
+                public int size() {
+                    final Value first = list.get(0);
+                    return first.asList().size();
                 }
             };
         }

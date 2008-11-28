@@ -7,6 +7,13 @@ package net.stoerr.functional.backus;
  * @since 26.11.2008
  */
 public abstract class LazyFunction extends AbstractFunction {
+    
+    public LazyFunction() { //nix
+    }
+
+    public LazyFunction(String name) {
+        super(name);
+    }
 
     public final Value call(final Value arg) {
         return new LazyValue() {

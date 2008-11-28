@@ -25,6 +25,7 @@ public abstract class LazyList extends AbstractList {
         Value res = values.get(i);
         if (null == res) {
             res = value(i);
+            values.put(i, res);
         }
         return res;
     }

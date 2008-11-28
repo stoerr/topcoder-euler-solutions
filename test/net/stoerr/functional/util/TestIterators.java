@@ -20,7 +20,7 @@ public class TestIterators extends TestCase {
                 Arrays.asList(new Integer[] { 5, 17 }).iterator(), };
         Iterator<Iterator<Integer>> superit = Arrays.asList(its).iterator();
         Iterator<Integer> it = Iterators.concat(superit);
-        List<Integer> col = Iterators.lazyList(it);
+        List<Integer> col = Iterators.delayedList(it);
         assertEquals(Arrays.asList(new Integer[] { 7, 3, 8, 5, 17 }).toString(), col.toString());
     }
 }

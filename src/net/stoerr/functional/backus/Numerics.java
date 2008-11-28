@@ -14,7 +14,7 @@ public class Numerics {
             ListObject vals = arg.asList();
             double res = ((Number) vals.get(0).get()).doubleValue();
             for (int i = 1; i < vals.size(); ++i) {
-                double n = ((Number) vals.get(0).get()).doubleValue();
+                double n = ((Number) vals.get(i).get()).doubleValue();
                 res = res + n;
             }
             return res;

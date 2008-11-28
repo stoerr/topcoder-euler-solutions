@@ -85,12 +85,12 @@ public final class Iterators {
     }
 
     /** A list that is lazily calculated */
-    public static interface LazyList<T> extends List<T> {
+    public static interface DelayedList<T> extends List<T> {
         /** Tells if there is a element at index index; the element is not yet calculated. */
         public boolean has(int index);
     }
 
-    private static abstract class AbstractLazyList<T> extends AbstractList<T> implements LazyList<T> {}
+    private static abstract class AbstractLazyList<T> extends AbstractList<T> implements DelayedList<T> {}
 
     /**
      * Makes a lazy collection from the iterator - everything is read as needed. Probably threadsafe.<br>
@@ -98,7 +98,7 @@ public final class Iterators {
      * Caution: Maybe size() returns too small value if any of it.next() is null. We probably have trouble with null
      * values anyway.
      */
-    public static <T> LazyList<T> lazyList(final Iterator<T> it) {
+    public static <T> DelayedList<T> delayedList(final Iterator<T> it) {
         return new AbstractLazyList<T>() {
             private volatile int read = 0; // is Integer.MAX_VALUE iff
             // everything was read from it.
