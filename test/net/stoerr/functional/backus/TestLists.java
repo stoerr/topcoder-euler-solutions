@@ -1,13 +1,15 @@
 package net.stoerr.functional.backus;
 
+import static net.stoerr.functional.backus.Combinators.cn;
+import static net.stoerr.functional.backus.DebugFunctional.UNLAZY;
+import static net.stoerr.functional.backus.Lists.APPEND;
+import static net.stoerr.functional.backus.Lists.L;
+import static net.stoerr.functional.backus.Lists.TAIL;
+import static net.stoerr.functional.backus.Lists.TRANSPOSE;
 import junit.framework.TestCase;
-import static net.stoerr.functional.backus.Combinators.*;
-import static net.stoerr.functional.backus.Numerics.*;
-import static net.stoerr.functional.backus.Lists.*;
 
 /**
  * Tests for {@link Lists}.
- * 
  * @author hps
  * @since 26.11.2008
  */

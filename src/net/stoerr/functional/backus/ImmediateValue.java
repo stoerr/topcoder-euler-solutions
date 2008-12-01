@@ -10,8 +10,8 @@ public final class ImmediateValue extends AbstractValue {
     private final Object val;
 
     public ImmediateValue(Object val) {
-        if (!((val instanceof Number)||(val instanceof String)||(val instanceof Boolean)||(val instanceof ListObject))) {
-            assert (val instanceof Number)||(val instanceof String)||(val instanceof Boolean)||(val instanceof ListObject) : val;
+        if (null == val || !((val instanceof Number)||(val instanceof String)||(val instanceof Boolean)||(val instanceof ListObject))) {
+            assert false : val;
         }
         this.val = val;
     }

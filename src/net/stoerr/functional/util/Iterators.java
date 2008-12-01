@@ -3,6 +3,9 @@ package net.stoerr.functional.util;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.stoerr.euler.help.Pair;
+import net.stoerr.functional.backus.Value;
+
 /**
  * Helperclass for {@link Iterator}s.
  * @author hps
@@ -146,4 +149,62 @@ public final class Iterators {
         return new DelayedIteratorList();
     }
 
+    /**
+     * Yields an iterator that iterates over the elements of all iterators of superit merged such that smallest come
+     * first if the iterators are smallest first.
+     */
+    public static <T extends Comparable<T>> Iterator<T> merge(Iterator<T> it1, Iterator<T> it2) {
+        final class MergedIterator implements Iterator<T> {
+            Iterator<T> i1 = null;
+            Iterator<T> i2 = null;
+            T x1;
+            T x2;
+
+            MergedIterator(Iterator<T> it1, Iterator<T> it2) {
+                if (it1.hasNext()) {
+                    i1 = it1;
+                    x1 = it1.next();
+                }
+                if (it2.hasNext()) {
+                    i2 = it2;
+                    x2 = it2.next();
+                }
+                order();
+            }
+
+            private void order() {
+                if (null == i1) {
+                    i1 = i2;
+                    x1 = x2;
+                    i2 = null;
+                }
+                if (null == i2) return;
+                if (x1.compareTo(x2) > 0) {
+                    Iterator<T> ih = i1;
+                    T xh = x1;
+                    i1 = i2;
+                    x1 = x2;
+                    i2 = ih;
+                    x2 = xh;
+                }
+            }
+
+            public boolean hasNext() {
+                return (null != i1) || (null != i2);
+            }
+
+            public T next() {
+                T res = x1;
+                if (i1.hasNext()) x1 = i1.next();
+                else i1 = null;
+                order();
+                return res;
+            }
+
+            public void remove() {
+                i1.remove();
+            }
+        }
+        return new MergedIterator(it1, it2);
+    }
 }

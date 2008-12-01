@@ -24,4 +24,7 @@ public abstract class AbstractValue implements Value {
         return (Boolean) get();
     }
 
+    public int compareTo(Object arg0) {
+        return ((Comparable) get()).compareTo(((Value)arg0).get());
+    }
 }

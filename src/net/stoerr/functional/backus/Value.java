@@ -9,7 +9,7 @@ import java.util.List;
  * @author hps
  * @since 26.11.2008
  */
-public interface Value {
+public interface Value extends Comparable {
 
     /** Get - and possibly calculate - the value. */
     Object get();

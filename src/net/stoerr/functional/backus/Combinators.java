@@ -28,28 +28,6 @@ public class Combinators {
         }
     }
 
-    /**
-     * Completely evaluates lazy stuff: calls a get in every list recursively
-     * until item 10.
-     */
-    public static final Function UNLAZY = new AbstractFunction() {
-        public Value call(Value arg) {
-            unlazy(arg);
-            return arg;
-        }
-
-        private void unlazy(Value arg) {
-            final Object object = arg.get();
-            if (object instanceof ListObject) {
-                ListObject list = (ListObject) object;
-                int i = 0;
-                while (list.has(i) && i < 10) {
-                    unlazy(list.get(i++));
-                }
-            }
-        }
-    };
-
     /** Functional composition f:g:x (that is f(g(x)). */
     public static Function compose(final Function f, final Function g) {
         final class ComposeFunction extends LazyFunction {

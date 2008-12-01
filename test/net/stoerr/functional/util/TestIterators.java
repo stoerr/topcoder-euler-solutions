@@ -9,7 +9,6 @@ import junit.framework.TestCase;
 
 /**
  * Tests for {@link Iterators}
- * 
  * @author hps
  * @since 27.11.2008
  */
@@ -22,5 +21,13 @@ public class TestIterators extends TestCase {
         Iterator<Integer> it = Iterators.concat(superit);
         List<Integer> col = Iterators.delayedList(it);
         assertEquals(Arrays.asList(new Integer[] { 7, 3, 8, 5, 17 }).toString(), col.toString());
+    }
+
+    public final void testMerge() {
+        List<Integer> a1 = Arrays.asList(new Integer[] { 2, 3, 7 });
+        List<Integer> a2 = Arrays.asList(new Integer[] { 1, 4, 5 });
+        Iterator<Integer> it = Iterators.merge(a1.iterator(), a2.iterator());
+        List<Integer> res = Iterators.collection(it);
+        assertEquals(Arrays.asList(new Integer[] { 1, 2, 3, 4, 5, 7 }).toString(), res.toString());
     }
 }

@@ -10,7 +10,6 @@ import net.stoerr.functional.util.Iterators.DelayedList;
 
 /**
  * Functions related to {@link ListObject}s.
- * 
  * @author hps
  * @since 26.11.2008
  */
@@ -40,8 +39,7 @@ public class Lists {
 
                     public int size() {
                         int siz = arg.asList().size() - l;
-                        if (0 > siz)
-                            throw new BottomException(l + "Tail of " + (siz + l));
+                        if (0 > siz) throw new BottomException(l + "Tail of " + (siz + l));
                         return siz;
                     }
                 };
@@ -126,6 +124,34 @@ public class Lists {
                     return first.asList().size();
                 }
             };
+        }
+    }
+
+    private static final Function MERGE = new MergeFunction();
+
+    private static final class MergeFunction extends LazyFunction {
+        @Override
+        protected Object compute(final Value arg) {
+            ListObject list = arg.asList();
+            final Iterator<Value> combinedit = Iterators.merge(list.get(0).asList().asIterator(),
+                    list.get(1).asList().asIterator());
+            final DelayedList<Value> col = Iterators.delayedList(combinedit);
+            final class MergedList extends AbstractList {
+                public Value get(int i) {
+                    return col.get(i);
+                }
+
+                @Override
+                public boolean has(int i) {
+                    return col.has(i);
+                }
+
+                public int size() {
+                    return col.size(); // TODO calculate directly; this does not
+                    // allow streams.
+                }
+            }
+            return new MergedList();
         }
     }
 }

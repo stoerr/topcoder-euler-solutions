@@ -4,16 +4,20 @@ import junit.framework.TestCase;
 import static net.stoerr.functional.backus.Combinators.*;
 import static net.stoerr.functional.backus.Numerics.*;
 import static net.stoerr.functional.backus.Lists.*;
+import static net.stoerr.functional.backus.DebugFunctional.*;
 
 public class TestCombinators extends TestCase {
 
-    public final void donttestFibonacci() {
-        Function app11 = bindFirst(APPEND, V(1,1));
-        Function fibonacci = app11.c(cn(IDENTITY, IDENTITY)).c(TRANSPOSE).c(apply(PLUS));
+    public final void dtestFibonacci() {
+        Function prefix11 = bindFirst(APPEND, V(1,1,2,3)).c(debugList("prefix"));
+        Function fibonacci = cn(IDENTITY, TAIL).c(TRANSPOSE).c(apply(PLUS)).c(prefix11);
         Function tst = fixpoint(fibonacci);
         final ListObject res = tst.call(Value.BOTTOM).asList();
-        // final ListObject res = fibonacci.c(UNLAZY).call(V(3,5)).asList();
-        assertEquals("", res.toString());
+        //final ListObject res = fibonacci.call(V(1,1,2,3,5,8,13,21,35,56,91)).asList();
+        // assertEquals("", res.toString());
+        for (int i=0; i<10; ++i) {
+            System.out.println(i+"\t"+UNLAZY.call(res.get(i)));
+        }
     }
     
     public final void testFixpoint() {
@@ -28,6 +32,10 @@ public class TestCombinators extends TestCase {
         Function tst = cn(L(1,2),L(5,7)).c(apply(PLUS));
         final ListObject res = tst.c(UNLAZY).call(Value.BOTTOM).asList();
         assertEquals("<3.0, 12.0>", res.toString());
+    }
+    
+    public void testBricks() {
+        
     }
     
 }

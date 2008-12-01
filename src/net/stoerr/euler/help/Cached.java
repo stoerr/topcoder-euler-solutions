@@ -2,6 +2,7 @@ package net.stoerr.euler.help;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Provides a cache such that a side effect free function is called only once
@@ -9,7 +10,7 @@ import java.util.Map;
  */
 public abstract class Cached<Arg, Val> implements Func<Arg, Val> {
 
-    private Map<Arg, Val> cache = new HashMap<Arg, Val>();
+    private Map<Arg, Val> cache = new WeakHashMap<Arg, Val>();
 
     /**
      * Consults the cache or calls {@link #impl(Object)}
