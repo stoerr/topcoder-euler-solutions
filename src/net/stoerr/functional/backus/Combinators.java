@@ -83,11 +83,17 @@ public class Combinators {
     }
 
     /** Binds the first argument to a given value. */
-    public static Function bindFirst(final Function f, final Value firstArg) {
+    public static Function bindFirst(final Function f, final Object firstArg) {
         return new LazyFunction() {
             @Override
             protected Object compute(final Value arg) {
-                ListObject l = new ImmediateList(firstArg, arg);
+                Value val;
+                if (firstArg instanceof Value) {
+                    val = (Value) firstArg;
+                } else {
+                    val = new ImmediateValue(firstArg);
+                }
+                ListObject l = new ImmediateList(val, arg);
                 return f.call(new ImmediateValue(l)).get();
             }
         };
