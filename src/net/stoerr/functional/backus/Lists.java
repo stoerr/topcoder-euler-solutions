@@ -13,7 +13,7 @@ import net.stoerr.functional.util.Iterators.DelayedList;
  * @author hps
  * @since 26.11.2008
  */
-public class Lists {
+public final class Lists {
 
     public static Function nth(final int l) {
         final class NthFunction extends LazyFunction {
@@ -79,23 +79,28 @@ public class Lists {
             });
             final Iterator<Value> combinedit = Iterators.concat(superit);
             final DelayedList<Value> col = Iterators.delayedList(combinedit);
-            final class AppendedList extends AbstractList {
-                public Value get(int i) {
-                    return col.get(i);
-                }
-
-                @Override
-                public boolean has(int i) {
-                    return col.has(i);
-                }
-
-                public int size() {
-                    return col.size(); // TODO calculate directly; this does not
-                    // allow streams.
-                }
-            }
-            return new AppendedList();
+            return new DelayedListAdapter(col);
         }
+    }
+    
+    private static class DelayedListAdapter extends AbstractList {
+        private DelayedList<Value> list;
+        public DelayedListAdapter(DelayedList<Value> col) {
+            this.list = col;
+        }
+        public Value get(int i) {
+            return list.get(i);
+        }
+
+        @Override
+        public boolean has(int i) {
+            return list.has(i);
+        }
+
+        public int size() {
+            return list.size(); // TODO calculate directly; this does not
+            // allow streams.
+        }        
     }
 
     public static final Function TRANSPOSE = new TransposeFunction();
@@ -153,5 +158,23 @@ public class Lists {
             }
             return new MergedList();
         }
+    }
+    
+    /** Filters a list by the predicate */
+    public static Function filter(final Function predicate) {
+        return new LazyFunction() {
+            @Override
+            protected Object compute(Value arg) {
+                Iterator<Value> argIt = arg.asList().asIterator();
+                F<Value, Boolean> pred = new F<Value, Boolean>() {
+                    public Boolean call(Value el) {
+                        return predicate.call(el).asBoolean();
+                    }
+                };
+                final Iterator<Value> filteredIt = Iterators.filter(argIt, pred);
+                final DelayedList<Value> col = Iterators.delayedList(filteredIt);
+                return new DelayedListAdapter(col);
+            }
+        };
     }
 }

@@ -8,6 +8,7 @@ import net.stoerr.functional.backus.Value;
 
 /**
  * Helperclass for {@link Iterator}s.
+ * 
  * @author hps
  * @since 27.11.2008
  */
@@ -34,14 +35,16 @@ public final class Iterators {
     }
 
     /**
-     * Iterator that yields all elements from all iterators superit returns, in order. Not threadsafe.
+     * Iterator that yields all elements from all iterators superit returns, in
+     * order. Not threadsafe.
      */
     public static <T> Iterator<T> concat(final Iterator<Iterator<T>> superit) {
         return new Iterator<T>() {
             private Iterator<T> current = null;
 
             /**
-             * getCurrent.hasNext() is always true iff not null; when null everything is exhausted.
+             * getCurrent.hasNext() is always true iff not null; when null
+             * everything is exhausted.
              */
             private Iterator<T> getCurrent() {
                 while (null == current && superit.hasNext()) {
@@ -59,7 +62,8 @@ public final class Iterators {
 
             public T next() {
                 T val = getCurrent().next();
-                if (!current.hasNext()) current = null;
+                if (!current.hasNext())
+                    current = null;
                 return val;
             }
 
@@ -89,15 +93,19 @@ public final class Iterators {
 
     /** A list that is lazily calculated */
     public static interface DelayedList<T> extends List<T> {
-        /** Tells if there is a element at index index; the element is not yet calculated. */
+        /**
+         * Tells if there is a element at index index; the element is not yet
+         * calculated.
+         */
         public boolean has(int index);
     }
 
     /**
-     * Makes a lazy collection from the iterator - everything is read as needed. Probably threadsafe.<br>
+     * Makes a lazy collection from the iterator - everything is read as needed.
+     * Probably threadsafe.<br>
      * Warning: size() reads everything from the iterator - not lazy!<br>
-     * Caution: Maybe size() returns too small value if any of it.next() is null. We probably have trouble with null
-     * values anyway.
+     * Caution: Maybe size() returns too small value if any of it.next() is
+     * null. We probably have trouble with null values anyway.
      */
     public static <T> DelayedList<T> delayedList(final Iterator<T> it) {
         final class DelayedIteratorList extends AbstractList<T> implements DelayedList<T> {
@@ -116,7 +124,8 @@ public final class Iterators {
             }
 
             /**
-             * Reads from it up to the index' element. Postcondition: read>index.
+             * Reads from it up to the index' element. Postcondition:
+             * read>index.
              */
             private synchronized void readTo(int index) {
                 while (read <= index) {
@@ -133,16 +142,21 @@ public final class Iterators {
 
             @Override
             public int size() {
-                if (read < Integer.MAX_VALUE) readTo(Integer.MAX_VALUE);
+                if (read < Integer.MAX_VALUE)
+                    readTo(Integer.MAX_VALUE);
                 return values.size();
             }
 
             public boolean has(int index) {
-                if (Integer.MAX_VALUE == read) return index < size();
-                if (read > index) return true;
-                if (read == index) return it.hasNext();
+                if (Integer.MAX_VALUE == read)
+                    return index < size();
+                if (read > index)
+                    return true;
+                if (read == index)
+                    return it.hasNext();
                 readTo(index - 1);
-                if (Integer.MAX_VALUE == read) return index < size();
+                if (Integer.MAX_VALUE == read)
+                    return index < size();
                 return it.hasNext();
             }
         }
@@ -150,8 +164,9 @@ public final class Iterators {
     }
 
     /**
-     * Yields an iterator that iterates over the elements of all iterators of superit merged such that smallest come
-     * first if the iterators are smallest first.
+     * Yields an iterator that iterates over the elements of all iterators of
+     * superit merged such that smallest come first if the iterators are
+     * smallest first.
      */
     public static <T extends Comparable<T>> Iterator<T> merge(Iterator<T> it1, Iterator<T> it2) {
         final class MergedIterator implements Iterator<T> {
@@ -178,7 +193,8 @@ public final class Iterators {
                     x1 = x2;
                     i2 = null;
                 }
-                if (null == i2) return;
+                if (null == i2)
+                    return;
                 if (x1.compareTo(x2) > 0) {
                     Iterator<T> ih = i1;
                     T xh = x1;
@@ -195,8 +211,10 @@ public final class Iterators {
 
             public T next() {
                 T res = x1;
-                if (i1.hasNext()) x1 = i1.next();
-                else i1 = null;
+                if (i1.hasNext())
+                    x1 = i1.next();
+                else
+                    i1 = null;
                 order();
                 return res;
             }
@@ -206,5 +224,47 @@ public final class Iterators {
             }
         }
         return new MergedIterator(it1, it2);
+    }
+
+    public static <T> Iterator<T> filter(final Iterator<T> it, final F<T, Boolean> predicate) {
+        final class FilteredIterator implements Iterator<T> {
+            boolean nextset = false;
+            T nextval;
+
+            public boolean hasNext() {
+                if (!nextset && it.hasNext()) {
+                    getNext();
+                }
+                return nextset;
+            }
+
+            /** clears nextset and retrieves the next value if there is one. */
+            private void getNext() {
+                nextset = false;
+                while (!nextset && it.hasNext()) {
+                    nextval = it.next();
+                    if (predicate.call(nextval)) {
+                        nextset = true;
+                    }
+                }
+            }
+
+            public T next() {
+                if (!nextset)
+                    getNext();
+                if (nextset) {
+                    T res = nextval;
+                    getNext();
+                    return res;
+                } else {
+                    throw new IllegalStateException("No next element.");
+                }
+            }
+
+            public void remove() {
+                it.remove();
+            }
+        }
+        return new FilteredIterator();
     }
 }

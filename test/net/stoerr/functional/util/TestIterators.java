@@ -6,9 +6,11 @@ import java.util.List;
 
 import net.stoerr.functional.util.Iterators;
 import junit.framework.TestCase;
+import static net.stoerr.functional.util.Iterators.*;
 
 /**
  * Tests for {@link Iterators}
+ * 
  * @author hps
  * @since 27.11.2008
  */
@@ -29,5 +31,17 @@ public class TestIterators extends TestCase {
         Iterator<Integer> it = Iterators.merge(a1.iterator(), a2.iterator());
         List<Integer> res = Iterators.collection(it);
         assertEquals(Arrays.asList(new Integer[] { 1, 2, 3, 4, 5, 7 }).toString(), res.toString());
+    }
+
+    public final void testFilter() {
+        List<Integer> a = Arrays.asList(new Integer[] { 3, 7, 1, 2, 3, 4, 5, 7, 3 });
+        F<Integer, Boolean> pred = new F<Integer, Boolean>() {
+            public Boolean call(Integer arg) {
+                return 3 <= arg && arg <= 5;
+            }
+        };
+        Iterator<Integer> it = filter(a.iterator(), pred);
+        List<Integer> res = Iterators.collection(it);
+        assertEquals(Arrays.asList(new Integer[] { 3, 3, 4, 5, 3 }).toString(), res.toString());
     }
 }
