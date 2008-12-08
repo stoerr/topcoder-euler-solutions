@@ -132,14 +132,21 @@ public final class Lists {
         }
     }
 
-    public static final Function MERGE = new MergeFunction();
+    public static final Function MERGE = new MergeFunction(false);
+    public static final Function MERGEUNIQUE = new MergeFunction(true);
 
     private static final class MergeFunction extends LazyFunction {
+        private final boolean unique;
+
+        public MergeFunction(boolean unique) {
+            this.unique = unique;
+        }
+
         @Override
         protected Object compute(final Value arg) {
             ListObject list = arg.asList();
             final Iterator<Value> combinedit = Iterators.merge(list.get(0).asList().asIterator(),
-                    list.get(1).asList().asIterator());
+                    list.get(1).asList().asIterator(), unique);
             final DelayedList<Value> col = Iterators.delayedList(combinedit);
             final class MergedList extends AbstractList {
                 public Value get(int i) {

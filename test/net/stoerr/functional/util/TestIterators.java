@@ -27,10 +27,18 @@ public class TestIterators extends TestCase {
 
     public final void testMerge() {
         List<Integer> a2 = Arrays.asList(new Integer[] { 2, 3, 7 });
-        List<Integer> a1 = Arrays.asList(new Integer[] { 1, 4, 5 });
-        Iterator<Integer> it = Iterators.merge(a1.iterator(), a2.iterator());
-        List<Integer> res = Iterators.collection(it);
-        assertEquals(Arrays.asList(new Integer[] { 1, 2, 3, 4, 5, 7 }).toString(), res.toString());
+        List<Integer> a1 = Arrays.asList(new Integer[] { 1, 3, 5 });
+        {
+            Iterator<Integer> it = Iterators.merge(a1.iterator(), a2.iterator(), false);
+            List<Integer> res = Iterators.collection(it);
+            assertEquals(Arrays.asList(new Integer[] { 1, 2, 3, 3, 5, 7 }).toString(), res.toString());
+        }
+        {
+            Iterator<Integer> it = Iterators.merge(a1.iterator(), a2.iterator(), true);
+            List<Integer> res = Iterators.collection(it);
+            assertEquals(Arrays.asList(new Integer[] { 1, 2, 3, 5, 7 }).toString(), res.toString());
+
+        }
     }
 
     public final void testFilter() {

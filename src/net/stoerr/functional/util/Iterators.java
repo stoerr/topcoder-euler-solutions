@@ -166,9 +166,9 @@ public final class Iterators {
     /**
      * Yields an iterator that iterates over the elements of all iterators of
      * superit merged such that smallest come first if the iterators are
-     * smallest first.
+     * smallest first. If unique is set, consecutive equal elements are merged into one.
      */
-    public static <T extends Comparable<T>> Iterator<T> merge(Iterator<T> it1, Iterator<T> it2) {
+    public static <T extends Comparable<T>> Iterator<T> merge(Iterator<T> it1, Iterator<T> it2, final boolean unique) {
         final class MergedIterator implements Iterator<T> {
             Iterator<T> i1 = null;
             Iterator<T> i2 = null;
@@ -188,20 +188,23 @@ public final class Iterators {
             }
 
             private void order() {
-                if (null == i1) {
+                if (null == i1 && null != i2) {
                     i1 = i2;
                     x1 = x2;
                     i2 = null;
                 }
                 if (null == i2)
                     return;
-                if (x1.compareTo(x2) > 0) {
+                final int cmp = x1.compareTo(x2);
+                if (cmp > 0) {
                     Iterator<T> ih = i1;
                     T xh = x1;
                     i1 = i2;
                     x1 = x2;
                     i2 = ih;
                     x2 = xh;
+                } else if (unique && cmp == 0) {
+                    next();
                 }
             }
 
