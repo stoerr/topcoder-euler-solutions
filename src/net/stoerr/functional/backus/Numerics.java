@@ -6,7 +6,7 @@ package net.stoerr.functional.backus;
  * @author hps
  * @since 26.11.2008
  */
-public class Numerics {
+public final class Numerics {
 
     public static final Function PLUS = new PlusDoubleFunction();
 
@@ -75,4 +75,33 @@ public class Numerics {
         }
     };
 
+    public static Function numberList(final double start, final double end, final double step) {
+        return new LazyFunction() {
+            @Override
+            protected Object compute(Value arg) {
+                class NumberList extends AbstractList {
+                    public Value get(int i) {
+                        return new ImmediateValue(start + i + step);
+                    }
+
+                    public int size() {
+                        return (int) Math.round((end - start) / step);
+                    }
+                }
+                return new NumberList();
+            }
+        };
+    }
+
+    /** Number -> Boolean */
+    public static Function between(final double start, final double end) {
+        class BetweenFunction extends LazyFunction {
+            @Override
+            protected Object compute(Value arg) {
+                double val = arg.asDouble();
+                return (start <= val) && (val <= end) || (start >= val) && (val >= end);
+            }
+        }
+        return new BetweenFunction();
+    }
 }

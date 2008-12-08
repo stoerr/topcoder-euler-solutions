@@ -13,7 +13,7 @@ import net.stoerr.functional.util.Iterators.DelayedList;
  * @author hps
  * @since 26.11.2008
  */
-public class Lists {
+public final class Lists {
 
     public static Function nth(final int l) {
         final class NthFunction extends LazyFunction {
@@ -161,20 +161,20 @@ public class Lists {
     }
     
     /** Filters a list by the predicate */
-    /* public static Function filter(final Function predicate) {
+    public static Function filter(final Function predicate) {
         return new LazyFunction() {
             @Override
             protected Object compute(Value arg) {
                 Iterator<Value> argIt = arg.asList().asIterator();
-                final Iterator<Iterator<Value>> superit = Iterators.map(argIt, new F<Value, Iterator<Value>>() {
-                    public Iterator<Value> call(Value argVal) {
-                        return argVal.asList().asIterator();
+                F<Value, Boolean> pred = new F<Value, Boolean>() {
+                    public Boolean call(Value el) {
+                        return predicate.call(el).asBoolean();
                     }
-                });
-                final Iterator<Value> combinedit = Iterators.concat(superit);
-                final DelayedList<Value> col = Iterators.delayedList(combinedit);
+                };
+                final Iterator<Value> filteredIt = Iterators.filter(argIt, pred);
+                final DelayedList<Value> col = Iterators.delayedList(filteredIt);
                 return new DelayedListAdapter(col);
             }
         };
-    } */
+    }
 }
