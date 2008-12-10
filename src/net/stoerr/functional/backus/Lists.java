@@ -10,10 +10,11 @@ import net.stoerr.functional.util.Iterators.DelayedList;
 
 /**
  * Functions related to {@link ListObject}s.
+ * 
  * @author hps
  * @since 26.11.2008
  */
-public class Lists {
+public final class Lists {
 
     public static Function nth(final int l) {
         final class NthFunction extends LazyFunction {
@@ -39,7 +40,8 @@ public class Lists {
 
                     public int size() {
                         int siz = arg.asList().size() - l;
-                        if (0 > siz) throw new BottomException(l + "Tail of " + (siz + l));
+                        if (0 > siz)
+                            throw new BottomException(l + "Tail of " + (siz + l));
                         return siz;
                     }
                 };
@@ -79,22 +81,29 @@ public class Lists {
             });
             final Iterator<Value> combinedit = Iterators.concat(superit);
             final DelayedList<Value> col = Iterators.delayedList(combinedit);
-            final class AppendedList extends AbstractList {
-                public Value get(int i) {
-                    return col.get(i);
-                }
+            return new DelayedListAdapter(col);
+        }
+    }
 
-                @Override
-                public boolean has(int i) {
-                    return col.has(i);
-                }
+    private static class DelayedListAdapter extends AbstractList {
+        private DelayedList<Value> list;
 
-                public int size() {
-                    return col.size(); // TODO calculate directly; this does not
-                    // allow streams.
-                }
-            }
-            return new AppendedList();
+        public DelayedListAdapter(DelayedList<Value> col) {
+            this.list = col;
+        }
+
+        public Value get(int i) {
+            return list.get(i);
+        }
+
+        @Override
+        public boolean has(int i) {
+            return list.has(i);
+        }
+
+        public int size() {
+            return list.size(); // TODO calculate directly; this does not
+            // allow streams.
         }
     }
 
@@ -127,14 +136,21 @@ public class Lists {
         }
     }
 
-    public static final Function MERGE = new MergeFunction();
+    public static final Function MERGE = new MergeFunction(false);
+    public static final Function MERGEUNIQUE = new MergeFunction(true);
 
     private static final class MergeFunction extends LazyFunction {
+        private final boolean unique;
+
+        public MergeFunction(boolean unique) {
+            this.unique = unique;
+        }
+
         @Override
         protected Object compute(final Value arg) {
             ListObject list = arg.asList();
-            final Iterator<Value> combinedit = Iterators.merge(list.get(0).asList().asIterator(),
-                    list.get(1).asList().asIterator());
+            final Iterator<Value> combinedit = Iterators.merge(list.get(0).asList().asIterator(), list.get(1).asList()
+                    .asIterator(), unique);
             final DelayedList<Value> col = Iterators.delayedList(combinedit);
             final class MergedList extends AbstractList {
                 public Value get(int i) {
@@ -154,4 +170,56 @@ public class Lists {
             return new MergedList();
         }
     }
+
+    /** Filters a list by the predicate */
+    public static Function filter(final Function predicate) {
+        return new LazyFunction() {
+            @Override
+            protected Object compute(Value arg) {
+                Iterator<Value> argIt = arg.asList().asIterator();
+                F<Value, Boolean> pred = new F<Value, Boolean>() {
+                    public Boolean call(Value el) {
+                        return predicate.call(el).asBoolean();
+                    }
+                };
+                final Iterator<Value> filteredIt = Iterators.filter(argIt, pred);
+                final DelayedList<Value> col = Iterators.delayedList(filteredIt);
+                return new DelayedListAdapter(col);
+            }
+        };
+    }
+
+    /** Distribute left */
+    public static final Function DISTL = new LazyFunction() {
+        @Override
+        protected Object compute(final Value arg) {
+            final ListObject list = arg.asList();
+            final Value val = list.get(0);
+
+            final class DistributeLeftList extends LazyList {
+                @Override
+                protected Value value(final int i) {
+                    return new ImmediateValue(new LazyList() {
+                        @Override
+                        protected Value value(int j) {
+                            if (0 == j) {
+                                return val;
+                            } else {
+                                return list.get(j).asList().get(i);
+                            }
+                        }
+
+                        public int size() {
+                            return list.size();
+                        }
+                    });
+                }
+
+                public int size() {
+                    return list.get(1).asList().size();
+                }
+            }
+            return new DistributeLeftList();
+        }
+    };
 }
