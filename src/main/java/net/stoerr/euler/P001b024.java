@@ -152,7 +152,7 @@ public class P001b024 extends Assert {
     @Test
     public void testP012() {
         int i = 1;
-        int divs = 0;
+        long divs = 0;
         int n = 0;
         while (divs <= 500) {
             ++i;
