@@ -1,7 +1,5 @@
 package net.stoerr.euler;
 
-import quicktime.qd3d.math.Quaternion;
-
 import net.stoerr.topcoder.amdraytracer.QuadraticEquation;
 
 /**
