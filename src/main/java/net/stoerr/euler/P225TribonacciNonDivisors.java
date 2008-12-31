@@ -11,7 +11,7 @@ public class P225TribonacciNonDivisors extends TestCase {
         Set<String> have = new HashSet<String>();
         Boolean res = null;
         while (null == res) {
-            String trip = i1 + "/" + i1 + "/" + i3;
+            String trip = i1 + "/" + i2 + "/" + i3;
             if (have.contains(trip)) {
                 res = Boolean.TRUE;
             } else {
@@ -28,11 +28,13 @@ public class P225TribonacciNonDivisors extends TestCase {
         }
         return res;
     }
-
+    
     public void testNondivs() {
-        for (int i = 1; i < 30; i += 2) {
+        int cnt = 0;
+        for (int i = 1; i < 3000; i += 2) {
             if (tribonaccinondiv(1, 1, 1, i)) {
-                System.out.println("nondiv: " + i);
+                cnt++;
+                System.out.println(cnt + "nondiv: " + i);
             }
         }
     }
