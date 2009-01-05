@@ -1,9 +1,15 @@
 package net.stoerr.euler.help;
 
+import static net.stoerr.euler.help.Modulo.lift;
+import static net.stoerr.euler.help.Modulo.mod;
+import static net.stoerr.euler.help.Modulo.mult;
+
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import junit.framework.TestCase;
-import static net.stoerr.euler.help.Modulo.*;
 
 public class TestModulo extends TestCase {
 
@@ -18,11 +24,23 @@ public class TestModulo extends TestCase {
 
     public void testMult() {
         assertEquals((8 * 15) % 17, mult(8, 15, 17));
-        long a = 94833492;
-        long b = 38239232;
-        long m = 88232124;
+        final long a = 94833492;
+        final long b = 38239232;
+        final long m = 88232124;
         assertEquals(BigInteger.valueOf(a).multiply(BigInteger.valueOf(b)).mod(BigInteger.valueOf(m)).longValue(),
                 mult(a, b, m));
+    }
+
+    public void testLift() {
+        final List<Long> seed = Arrays.asList(new Long[] { 0L, 0L, 0L });
+        final Func2<List<Long>, Long, Boolean> pred = new Func2<List<Long>, Long, Boolean>() {
+            public Boolean call(final List<Long> arg, final Long l) {
+                return true;
+            }
+        };
+        final List<List<Long>> seedList = Collections.singletonList(seed);
+        final List<List<Long>> res = lift(seedList, 1, 4, pred);
+        assertEquals(res.toString(), 64, res.size());
     }
 
 }
