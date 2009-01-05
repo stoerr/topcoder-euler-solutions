@@ -11,11 +11,17 @@ import java.util.concurrent.TimeUnit;
 import net.stoerr.euler.help.Modulo;
 
 /**
+ * 1/abc = 1/a+1/b+1/c, abc>0. Gesucht: 150000-er Wert abc.<br>
+ * Zwei sind negativ: b und c. b->-b, c->-c: a = bc-1/(b+c), d.h. b+c muss
+ * Teiler von bc-1 sein.<br>
  * run4: 30000 : 460 (0.016 s) <br>
  * 300000 : 2006 (0.125 s)<br>
  * 3000000 : 8127 (1.047 s)<br>
  * run6: 300000 : 2008 (1.094 s) 3000000 : 8132 (10.642 s) <br>
- * run7: 3000000 : 8127 (0.609 s) 30000000 : 31442 (6.03 s)
+ * run7: 3000000 : 1237 (16.015 s) 30000000 : 31442 (6.03 s) <br>
+ * 30000000 : 3945 (169.31300000000002 s) <br>
+ * 300000000 : 12675 (1388.747 s)
+ * 
  * @author hps
  * @since 04.01.2009
  */
@@ -23,7 +29,7 @@ public class P221AlexandrianIntegers {
 
     Map<Number, String> res = Collections.synchronizedMap(new TreeMap<Number, String>());
     // final long max = 700000000L;
-    final long max = 700000000L;
+    final long max = 30000000L;
 
     /**
      * @throws Exception
@@ -36,13 +42,16 @@ public class P221AlexandrianIntegers {
         final long begin = System.currentTimeMillis();
         run7();
         int n = 0;
+        String elast = null;
         for (final Map.Entry<Number, String> e : res.entrySet()) {
             ++n;
             if (n < 20 || (149997 < n && 150005 > n)) {
                 System.out.println(n + ":\t" + e.getValue());
             }
+            elast = e.getValue();
         }
         System.out.println(max + " : " + n + "\t (" + 0.001 * (System.currentTimeMillis() - begin) + " s)");
+        System.out.println("last: " + elast);
         System.out.flush();
         System.err.flush();
         Thread.sleep(1000);
@@ -51,9 +60,11 @@ public class P221AlexandrianIntegers {
     private void run7() {
         for (double b = 2; b <= max; ++b) {
             for (double c = 2; c <= b && b * c <= max; ++c) {
-                if (b + c - 1 == (b * c) % (b + c)) {
-                    final double a = (b * c + 1) / (b - c);
+                if (0 == (b * c - 1) % (b + c)) {
+                    final double a = (b * c - 1) / (b + c);
                     final double A = b * c * a;
+                    if (res.containsKey(A))
+                        throw new IllegalArgumentException(res.get(A) + " da, neu: " + b + "\t" + c + "\t" + a + "\t" + A);
                     res.put(A, b + "\t" + c + "\t" + a + "\t" + A);
                 }
             }
@@ -71,7 +82,7 @@ public class P221AlexandrianIntegers {
                         if (b + c - 1 == Modulo.mult(b, c, b + c)) {
                             final BigInteger bi = BigInteger.valueOf(b);
                             final BigInteger ci = BigInteger.valueOf(c);
-                            final BigInteger a = bi.multiply(ci).add(BigInteger.valueOf(1)).divide(
+                            final BigInteger a = bi.multiply(ci).subtract(BigInteger.valueOf(1)).divide(
                                     BigInteger.valueOf(b - c));
                             final BigInteger A = bi.multiply(ci).multiply(a);
                             res.put(A, b + "\t" + c + "\t" + a + "\t" + A);
@@ -84,7 +95,7 @@ public class P221AlexandrianIntegers {
             });
         }
         executor.shutdown();
-        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
     }
 
     private void run5() {
@@ -93,7 +104,8 @@ public class P221AlexandrianIntegers {
                 if (b + c - 1 == Modulo.mult(b, c, b + c)) {
                     final BigInteger bi = BigInteger.valueOf(b);
                     final BigInteger ci = BigInteger.valueOf(c);
-                    final BigInteger a = bi.multiply(ci).add(BigInteger.valueOf(1)).divide(BigInteger.valueOf(b - c));
+                    final BigInteger a = bi.multiply(ci).subtract(BigInteger.valueOf(1))
+                            .divide(BigInteger.valueOf(b - c));
                     final BigInteger A = bi.multiply(ci).multiply(a);
                     res.put(A, b + "\t" + c + "\t" + a + "\t" + A);
                 }
@@ -105,7 +117,7 @@ public class P221AlexandrianIntegers {
         for (long b = 2; b <= max; ++b) {
             for (long c = 2; c <= b && b * c <= max; ++c) {
                 if (b + c - 1 == (b * c) % (b + c)) {
-                    final long a = (b * c + 1) / (b - c);
+                    final long a = (b * c - 1) / (b - c);
                     final long A = b * c * a;
                     res.put(BigInteger.valueOf(A), b + "\t" + c + "\t" + a + "\t" + A);
                 }
@@ -130,7 +142,7 @@ public class P221AlexandrianIntegers {
         for (long b = 2; b < max; ++b) {
             for (long c = 2; c < b; ++c) {
                 if (b + c - 1 == (b * c) % (b + c)) {
-                    final long a = (b * c + 1) / (b - c);
+                    final long a = (b * c - 1) / (b - c);
                     final long A = b * c * a;
                     res.put(BigInteger.valueOf(A), b + "\t" + c + "\t" + a + "\t" + A);
                 }
@@ -142,7 +154,8 @@ public class P221AlexandrianIntegers {
         BigInteger A = null;
         for (long s = 2; true; ++s) {
             // System.out.println(s + "\t" + res.size() + "\t" + A);
-            if (res.size() > max) return;
+            if (res.size() > max)
+                return;
             for (long d = 1; d <= s / 2; ++d) {
                 final long a = s / 2 + d;
                 final long b = s - a;
