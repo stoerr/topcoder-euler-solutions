@@ -70,4 +70,21 @@ public class CollectionUtils {
             return res;
         }
     }
+
+    public static List<Double> asList(final double[] array) {
+        final List<Double> res = new ArrayList<Double>(array.length);
+        for (final double d : array) {
+            res.add(d);
+        }
+        return res;
+    }
+
+    /** n times the list appended */
+    public static <T> List<T> nAppends(final List<T> l, final int n) {
+        final List<T> res = new ArrayList<T>(l.size() * n);
+        for (int i = 0; i < n; ++i) {
+            res.addAll(l);
+        }
+        return res;
+    }
 }

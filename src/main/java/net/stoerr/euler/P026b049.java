@@ -1,11 +1,16 @@
 package net.stoerr.euler;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-
-import net.stoerr.euler.help.PrimeUtils;
+import java.util.Set;
 
 import junit.framework.TestCase;
+
+import net.stoerr.euler.help.CollectionUtils;
+import net.stoerr.euler.help.PrimeUtils;
 
 public class P026b049 extends TestCase {
 
@@ -14,14 +19,14 @@ public class P026b049 extends TestCase {
         for (int i = 2; i < 1000; ++i) {
             int rest = 1;
             int stelle = 0;
-            Map<Integer, Integer> valToi = new HashMap<Integer, Integer>();
+            final Map<Integer, Integer> valToi = new HashMap<Integer, Integer>();
             while (0 != rest && !valToi.containsKey(rest)) {
                 valToi.put(rest, stelle);
                 ++stelle;
                 rest = (10 * rest) % i;
             }
             if (0 != rest) {
-                int cycle = stelle - valToi.get(rest);
+                final int cycle = stelle - valToi.get(rest);
                 if (cycle > maxcycle) {
                     // System.out.println(i+ "\t"+cycle);
                     maxcycle = cycle;
@@ -34,10 +39,10 @@ public class P026b049 extends TestCase {
     public void testP030() {
         long sum = 0;
         for (int i = 2; i < 1000000; ++i) {
-            String s = "" + i;
+            final String s = "" + i;
             long digsum = 0;
-            for (char c : s.toCharArray()) {
-                int d = c - '0';
+            for (final char c : s.toCharArray()) {
+                final int d = c - '0';
                 digsum += d * d * d * d * d;
             }
             if (i == digsum) {
@@ -54,12 +59,11 @@ public class P026b049 extends TestCase {
             for (int i = 1; i < j; ++i) {
                 // System.out.println(i+""+j);
                 for (int d = 1; d <= 9; d++) {
-                    int n1 = i + 10 * d;
-                    int n2 = 10 * i + d;
-                    int d1 = j + 10 * d;
-                    int d2 = 10 * j + d;
-                    if (n1 * j == d1 * i || n2 * j == d1 * i
-                            || n1 * j == d2 * i || n2 * j == d2 * i) {
+                    final int n1 = i + 10 * d;
+                    final int n2 = 10 * i + d;
+                    final int d1 = j + 10 * d;
+                    final int d2 = 10 * j + d;
+                    if (n1 * j == d1 * i || n2 * j == d1 * i || n1 * j == d2 * i || n2 * j == d2 * i) {
                         System.out.println(i + "," + j + "," + d);
                         num *= i;
                         den *= j;
@@ -67,8 +71,24 @@ public class P026b049 extends TestCase {
                 }
             }
         }
-        long gcd = PrimeUtils.gcd(num, den);
-        assertEquals(100L,den/gcd);
+        final long gcd = PrimeUtils.gcd(num, den);
+        assertEquals(100L, den / gcd);
+    }
+
+    /** Distinct terms a**b for 2<=a,b<=100 */
+    public void testP029() {
+        final Set<List<Long>> s = new HashSet<List<Long>>();
+        final int N = 100;
+        for (int a = 2; a <= N; ++a) {
+            final List<Long> fa = PrimeUtils.factor(a);
+            for (int b = 2; b <= N; ++b) {
+                final List<Long> fab = CollectionUtils.nAppends(fa, b);
+                Collections.sort(fab);
+                s.add(fab);
+            }
+        }
+        // System.out.println(s);
+        assertEquals(9183, s.size());
     }
 
 }
